@@ -63,7 +63,6 @@ class Passport(base):
     issue_date = Column(DATE, nullable=False)
     expiration_date = Column(DATE, nullable=False)
     
-
 class Car_license(base):
     __tablename__ = "carlicense"
     

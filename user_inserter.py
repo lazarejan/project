@@ -5,7 +5,7 @@ import random
 from faker import Faker
 
 @get_session
-def creater(personal_id, first_name, last_name, birth_date, sex, address, db : Session = None):
+def creater(personal_id, first_name, last_name, birth_date, sex, address, db : Session):
     new_citizen = Citizens(personal_id = personal_id, first_name = first_name, last_name=last_name, 
                            birth_date=birth_date, sex=sex, address=address)
     db.add(new_citizen)
