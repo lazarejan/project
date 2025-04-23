@@ -42,7 +42,7 @@ class Citizens(base):
 
 class Account(base):
     __tablename__ = "account"
-
+    
     username = Column(String, unique=True, nullable=False, primary_key=True)
     password = Column(String, nullable=False)
     personal_id = Column(String(11), ForeignKey("citizens.personal_id"), nullable=False)
