@@ -1,4 +1,3 @@
-from webbrowser import get
 from database import get_session, Citizens, Account, ID_card, Passport, Car_license
 from PyQt5.QtWidgets import QApplication, QSizePolicy, QMainWindow, QStackedWidget, QWidget, QPushButton, QVBoxLayout, QLabel, QLineEdit, QFormLayout, QHBoxLayout, QMessageBox, QDialog, QGridLayout
 import sys
@@ -38,27 +37,39 @@ class Welcome_window(QWidget):
         button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
 
 class Login_window(QDialog):
-    def __init__(self, go_home, My_window):
+    def __init__(self, My_window):
         super().__init__()
 
         self.user = QLineEdit()
         self.password = QLineEdit()
-        self.user.setPlaceholderText("Enter your email")
+        Pass_box = QHBoxLayout()
+        self.user.setPlaceholderText("Enter your username")        
         self.password.setPlaceholderText("Enter your password")
-        # self.password.setEchoMode(QLineEdit.Password)
+        self.password.setEchoMode(QLineEdit.Password)
         self.user.setFixedSize(300, 30)
         self.password.setFixedSize(300, 30)
         self.user.setStyleSheet("font-size: 15px")
 
+        self.toggle_button = QPushButton()
+        self.toggle_button.setFixedWidth(30)
+        self.toggle_button.setText("👁️") 
+        self.toggle_button.setCheckable(True)
+        self.toggle_button.clicked.connect(self.toggle_password_visibility)
+
+        Pass_box.addWidget(self.password)
+        Pass_box.addWidget(self.toggle_button)
+
         Submit = QPushButton("Sign Up", self)
         Submit.setFixedSize(120, 30)
-        # lambdati gadawyda imitor chveulebriv roca vadzlevdit arguments mag dros db-shi difoltad tavisiTsvamda arguments (false) a 
-        # da mere roca get_session cdilobda bd-stvis argumentis micemas erors agdebda.
-        Submit.clicked.connect(lambda: self.submit(go_home))
+        Submit.clicked.connect(lambda: self.submit(My_window.go_home))
+
+        Back_button = QPushButton("<", self)
+        Back_button.setGeometry(10, 10, 30, 30)
+        Back_button.clicked.connect(My_window.go_welcome)
 
         Form = QVBoxLayout()
         Form.addWidget(self.user)
-        Form.addWidget(self.password)
+        Form.addLayout(Pass_box)
         Form.addWidget(Submit, alignment=Qt.AlignCenter)
         Form.setAlignment(Qt.AlignCenter)
 
@@ -66,7 +77,7 @@ class Login_window(QDialog):
 
     @get_session
     def submit(self, go_home, db: Session = None):
-        account = db.query(Account).filter(Account.personal_id == self.user.text()).first()
+        account = db.query(Account).filter(Account.username == self.user.text()).first()
 
         if not account:
             QMessageBox.warning(self, "Verification", "User is not registered")
@@ -77,12 +88,19 @@ class Login_window(QDialog):
         
         go_home()
     
+    def toggle_password_visibility(self):
+        if self.toggle_button.isChecked():
+            self.password.setEchoMode(QLineEdit.Normal)  # Show password
+        else:
+            self.password.setEchoMode(QLineEdit.Password)  # Hide password
+            
+    
 class Register_window(QDialog):
     """
     Registration window for new users.
     
     """
-    def __init__(self, go_home, My_window):
+    def __init__(self, My_window):
         super().__init__()
         
         self.pers_id = QLineEdit()
@@ -102,7 +120,11 @@ class Register_window(QDialog):
         Submit.setFixedSize(120, 30)
         # lambdati gadawyda imitor chveulebriv roca vadzlevdit arguments mag dros db-shi difoltad tavisiTsvamda arguments (false) a 
         # da mere roca get_session cdilobda bd-stvis argumentis micemas erors agdebda.
-        Submit.clicked.connect(lambda: self.submit(go_home))
+        Submit.clicked.connect(lambda: self.submit(My_window.go_home))
+
+        Back_button = QPushButton("<", self)
+        Back_button.setGeometry(10, 10, 30, 30)
+        Back_button.clicked.connect(My_window.go_welcome)
 
         Form = QVBoxLayout()
         Form.addWidget(self.pers_id)
@@ -128,7 +150,7 @@ class Register_window(QDialog):
             QMessageBox.warning(self, "Username is taken", "Username is already taken, please choose another one")
             return
         if not citizen:
-            QMessageBox.warning(self, "error 404", "Citizen not found")
+            QMessageBox.warning(self, "Error 404", "Citizen not found")
             return
         
         add_account = Account(username=self.user.text(), password=self.password.text(), personal_id=citizen.personal_id)
@@ -137,11 +159,11 @@ class Register_window(QDialog):
         go_home()
 
 class Home_window(QWidget):
-    def __init__(self):
+    def __init__(self, My_window):
         super().__init__()
         self.setWindowTitle("Home")
-        btn = QPushButton("Logout", self)
-        # btn.clicked.connect()
+        Btn = QPushButton("Logout", self)
+        Btn.clicked.connect(My_window.go_welcome)
 
 class My_window(QMainWindow):
     def __init__(self):
@@ -154,16 +176,15 @@ class My_window(QMainWindow):
         self.stack = QStackedWidget(self)
         self.setCentralWidget(self.stack)
         self.stack.setGeometry(0, 0, 700, 540)
-        print(self.width())
-        self.login = Login_window(self.go_home, self)
-        self.home = Home_window()
-        self.welcome = Welcome_window(self)
-        self.register = Register_window(self.go_home, self)
+        Login = Login_window(self)
+        Home = Home_window(self)
+        Welcome = Welcome_window(self)
+        Register = Register_window(self)
 
-        self.stack.addWidget(self.welcome) # index: 0
-        self.stack.addWidget(self.login) # index: 1
-        self.stack.addWidget(self.register) # index: 2
-        self.stack.addWidget(self.home) # index: 3
+        self.stack.addWidget(Welcome) # index: 0
+        self.stack.addWidget(Login) # index: 1
+        self.stack.addWidget(Register) # index: 2
+        self.stack.addWidget(Home) # index: 3
 
         self.go_welcome()
 

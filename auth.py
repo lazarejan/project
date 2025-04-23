@@ -6,10 +6,12 @@ def reg_requirements(func):
         r_pas = self.r_password.text()
         error_msg = []
 
-        if username == ("" or " " or None):
+        if username == (""):
             error_msg.append(" * Username cannot be empty")
         if len(username) < 5 or len(username) > 20:
             error_msg.append(" * Username length should be 5-20 characters")
+        if " " in username:
+            error_msg.append(" * Username cannot contain spaces")
         
         if pas == ("" or " " or None):
             error_msg.append(" * Password cannot be empty")
@@ -23,7 +25,7 @@ def reg_requirements(func):
             error_msg.append(" * Passwords do not match")
 
         if error_msg:
-            QMessageBox.warning(self, "Verification", "\n".join(error_msg))
+            QMessageBox.warning(self, "Pattern Error", "\n".join(error_msg))
             return
         
         return func(self, *args, **kwargs)
