@@ -13,7 +13,7 @@ def creater(personal_id, first_name, last_name, birth_date, sex, address, db : S
 fake = Faker("ka_GE")
 
 for _ in range(5):
-    sex = {"F": "female", "M": "male", "X": "male"}
+    sex = {"F": "მდ", "M": "მმ", "X": "-"}
 
     person = fake.profile(["name", "sex", "address"])
     person["first_name"], person["last_name"] = person["name"].split(' ')

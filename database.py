@@ -1,7 +1,9 @@
-from sqlalchemy import ForeignKey, create_engine
+from itertools import count
+from tabnanny import check
+from sqlalchemy import CheckConstraint, ForeignKey, create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, String, DATE, Integer, Enum
+from sqlalchemy import Column, String, DATE, Integer
 import enum
 from config import settings
 
@@ -26,10 +28,6 @@ def get_session(func):
 
 base = declarative_base()
 
-class GenderEnum(enum.Enum):
-    male = "male"
-    female = "female"
-
 class Citizens(base):
     __tablename__ = "citizens"
 
@@ -37,8 +35,12 @@ class Citizens(base):
     first_name = Column(String, nullable=False) 
     last_name = Column(String, nullable=False) 
     birth_date = Column(DATE, nullable=False) 
-    sex = Column(Enum(GenderEnum), nullable=False) 
-    address = Column(String, nullable=False) 
+    sex = Column(String, nullable=False) 
+    address = Column(String, nullable=False)
+
+    __table_args__ = (
+        CheckConstraint("sex in ('მმ', 'მდ')", name="check_sex"),
+    )
 
 class Account(base):
     __tablename__ = "account"
@@ -58,7 +60,7 @@ class ID_card(base):
 class Passport(base):
     __tablename__ = "passport"
 
-    id = Column(Integer, primary_key=True, nullable=False)
+    passport_id = Column(String(9), primary_key=True, nullable=False, unique=True)
     personal_id = Column(String(11), ForeignKey("citizens.personal_id"), nullable=False)
     issue_date = Column(DATE, nullable=False)
     expiration_date = Column(DATE, nullable=False)
@@ -66,10 +68,50 @@ class Passport(base):
 class Car_license(base):
     __tablename__ = "carlicense"
     
-    id = Column(Integer, primary_key=True)
+    car_license_id = Column(Integer, primary_key=True)
     personal_id = Column(String(11), ForeignKey("citizens.personal_id"), nullable=False)
     issue_date = Column(DATE, nullable=False)
     expiration_date = Column(DATE, nullable=False)
+
+class Fine(base):
+    __tablename__ = "fine"
+
+    fine_id = Column(Integer, primary_key=True, nullable=False)
+    personal_id = Column(String(11), ForeignKey("citizens.personal_id"), nullable=False)
+    type = Column(String, nullable=False)
+    message = Column(String, nullable=False)
+    issue_date = Column(DATE, nullable=False)
+    expiration_date = Column(DATE, nullable=False)
+    amount = Column(Integer, nullable=False)
+    status = Column(String, nullable=False)
+
+    __table_args__ = (
+        CheckConstraint("type IN ('speeding', 'parking', 'other')", name="check_type"),
+        CheckConstraint("status IN ('paid', 'unpaid', 'expired')", name="check_status")
+    )
+
+class Visa(base):
+    __tablename__ = "visa"
+
+    visa_id = Column(Integer, primary_key=True, nullable=False)
+    passport_id = Column(String(11), ForeignKey("passport.passport_id"), nullable=False)
+    country = Column(String, nullable=False)
+    type = Column(String, nullable=False)
+    issue_date = Column(DATE, nullable=False)
+    expiration_date = Column(DATE, nullable=False)
+
+class BorderStamp(base):
+    __tablename__ = "borderstamp"
+
+    stamp_id = Column(Integer, primary_key=True)
+    passport_id = Column(String(11), ForeignKey("passport.passport_id"), nullable=False)
+    timestamp = Column(DATE, nullable=False)
+    location = Column(String, nullable=False)
+    direction = Column(String, nullable=False)
+
+    __table_args__ = (
+        CheckConstraint("direction IN ('entry', 'exit')", name="check_direction"),
+    )
 
 base.metadata.create_all(bind=engine)
 
