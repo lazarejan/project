@@ -39,11 +39,11 @@ class My_window(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("My first window")
-        self.setGeometry(960-350, 270, 700, 540)
+        self.setGeometry(610, 270, 700, 540)
         self.initUI()
     
     def initUI(self):
-        self.stack = QStackedWidget(self)
+        self.stack = QStackedWidget()
         self.setCentralWidget(self.stack)
         self.stack.setGeometry(0, 0, 700, 540)
         Welcome = Welcome_window(self)
@@ -57,7 +57,7 @@ class My_window(QMainWindow):
 
     def go_welcome(self):
         self.stack.setCurrentIndex(0)    
-    
+        
     def go_login(self):
         if not self.login_window:
             self.login_window = Login_window(self)
@@ -70,17 +70,11 @@ class My_window(QMainWindow):
             self.stack.addWidget(self.register_window)
         self.stack.setCurrentWidget(self.register_window)
         
-    def go_home(self):
+    def go_home(self, user):
         if not self.home_window:
-            self.home_window = Home_window(self)
+            self.home_window = Home_window(self, user)
             self.stack.addWidget(self.home_window)
         self.stack.setCurrentWidget(self.home_window)
-
-    def go_passport(self):
-        if not self.home_window:
-            self.home_window = Passport_window(self)
-            self.stack.addWidget(self.home_window)
-        self.stack.setCurrentIndex(4)
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

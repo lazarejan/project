@@ -4,8 +4,6 @@ from sqlalchemy.orm import Session
 from PyQt5.QtCore import Qt
 from oauth import reg_requirements, encrypt, decrypt, Curr_user
 
-curr_user = None
-
 class Login_window(QDialog):
     def __init__(self, My_window):
         super().__init__()
@@ -55,8 +53,11 @@ class Login_window(QDialog):
         if decrypt(account.password) != self.password.text():
             QMessageBox.warning(self, "Verification", "Password is incorrect")
             return
+        
+        # current user variable
         curr_user = Curr_user(account)
-        go_home()
+
+        go_home(curr_user)
     
     def toggle_password_visibility(self):
         if self.toggle_button.isChecked():
@@ -125,9 +126,10 @@ class Register_window(QDialog):
         passwrd = encrypt(self.password.text())
 
         add_account = Account(username=self.user.text(), password=passwrd, personal_id=citizen.personal_id)
-
+        
+        # current user variable
         curr_user = Curr_user(add_account)
         
         db.add(add_account)
-        go_home()
+        go_home(curr_user)
 
