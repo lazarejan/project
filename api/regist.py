@@ -1,24 +1,20 @@
 from fastapi import APIRouter, Depends, status, HTTPException
 from sqlalchemy.orm import Session
-from fastapi.security.oauth2 import OAuth2PasswordRequestForm
 from database import get_session, Citizens, Account
-from oauth import reg_requirements, encrypt, decrypt
+import hash 
 from . import oauth_
-import config
+import schemas
 
 router = APIRouter(
     prefix="/register",
     tags=["Registration"]
 )
 
-
-# @reg_requirements
-@router.post("")
-def register(user_info: config.UserRegister, db: Session = Depends(get_session)):
+@router.post("", status_code=status.HTTP_201_CREATED, response_model=schemas.TokenBase)
+def register(user_info: schemas.UserRegister, db: Session = Depends(get_session)):
     citizen = db.query(Citizens).filter(Citizens.personal_id == user_info.pers_id).first()
     is_registered = db.query(Account).filter(Account.personal_id == user_info.pers_id).first()
     username_taken = db.query(Account).filter(Account.username == user_info.username).first()
-    print(type(user_info.pers_id), citizen)
     if is_registered:
         raise HTTPException(status_code=400, detail="Person is already registered")
 
@@ -28,7 +24,10 @@ def register(user_info: config.UserRegister, db: Session = Depends(get_session))
     if not citizen:
         raise HTTPException(status_code=404, detail="Citizen not found")
     
-    passwrd = encrypt(user_info.password)
+    if user_info.password != user_info.r_password:
+        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail="password and repetead password must be same")
+    
+    passwrd = hash.encrypt(user_info.password)
 
     add_account = Account(username=user_info.username, password=passwrd, personal_id=citizen.personal_id)
     db.add(add_account)

@@ -1,10 +1,9 @@
-from database import get_session, Citizens, Account, ID_card, Passport, Car_license
-from PyQt5.QtWidgets import QApplication, QSizePolicy, QMainWindow, QStackedWidget, QWidget, QPushButton, QVBoxLayout, QLabel, QLineEdit, QFormLayout, QHBoxLayout, QMessageBox, QDialog, QGridLayout
-from sqlalchemy.orm import Session
+from PyQt5.QtWidgets import (QApplication, QSizePolicy, QMainWindow, QStackedWidget, QWidget, QPushButton, QVBoxLayout, 
+                             QLabel, QLineEdit, QFormLayout, QHBoxLayout, QMessageBox, QDialog, QGridLayout)
 from PyQt5 import QtCore, QtWidgets
 
 class Home_window(QWidget):
-    def __init__(self, My_window, user):
+    def __init__(self, My_window):
         super().__init__()
         self.setWindowTitle("Home")
         self.setupUi(self)

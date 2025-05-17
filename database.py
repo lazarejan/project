@@ -1,11 +1,8 @@
-from itertools import count
-from tabnanny import check
 from sqlalchemy import CheckConstraint, ForeignKey, create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, String, DATE, Integer
-import enum
-from config import settings
+from schemas import settings
 
 URL = f'postgresql://{settings.db_username}:{settings.db_pass}@{settings.db_host}:{settings.db_port}/{settings.db_name}'
 
@@ -61,7 +58,7 @@ class Passport(base):
 class Car_license(base):
     __tablename__ = "carlicense"
     
-    car_license_id = Column(Integer, primary_key=True)
+    car_license_id = Column(String(9), primary_key=True)
     personal_id = Column(String(11), ForeignKey("citizens.personal_id"), nullable=False)
     issue_date = Column(DATE, nullable=False)
     expiration_date = Column(DATE, nullable=False)

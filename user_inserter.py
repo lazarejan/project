@@ -1,8 +1,22 @@
-from database import get_session, Citizens
+from database import Citizens, SessionLocal
 from sqlalchemy.orm import Session
 import datetime
 import random
 from faker import Faker
+
+def get_session(func):
+    def wrapper(*args, **kwargs):
+        session = SessionLocal()
+        try:
+            result = func(*args, **kwargs, db=session)
+            session.commit()
+            return result
+        except Exception as e:
+            session.rollback()
+            raise e
+        finally:
+            session.close()
+    return wrapper
 
 @get_session
 def creater(personal_id, first_name, last_name, birth_date, sex, address, db : Session):

@@ -70,9 +70,9 @@ class My_window(QMainWindow):
             self.stack.addWidget(self.register_window)
         self.stack.setCurrentWidget(self.register_window)
         
-    def go_home(self, user):
+    def go_home(self):
         if not self.home_window:
-            self.home_window = Home_window(self, user)
+            self.home_window = Home_window(self)
             self.stack.addWidget(self.home_window)
         self.stack.setCurrentWidget(self.home_window)
 

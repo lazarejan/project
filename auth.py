@@ -1,8 +1,6 @@
-from database import get_session, Citizens, Account
 from PyQt5.QtWidgets import QPushButton, QVBoxLayout, QLineEdit, QHBoxLayout, QMessageBox, QDialog
 from sqlalchemy.orm import Session
 from PyQt5.QtCore import Qt
-from oauth import reg_requirements, encrypt, decrypt, Curr_user
 import requests
 
 class Login_window(QDialog):
@@ -44,7 +42,7 @@ class Login_window(QDialog):
 
         self.setLayout(Form)
 
-    def submit(self, go_home, db: Session = None):
+    def submit(self, go_home):
         try:
             data = {
                 "username": self.user.text(),
@@ -57,8 +55,11 @@ class Login_window(QDialog):
                 print("sucsseesss")
             else:
                 QMessageBox.warning(self, "Failed", f"Login failed:\n{response.json()['detail']}")
+            
+            go_home()
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Error connecting to server:\n{str(e)}")
+        
 
     def toggle_password_visibility(self):
         if self.toggle_button.isChecked():
@@ -118,9 +119,11 @@ class Register_window(QDialog):
             }
             response = requests.post("http://127.0.0.1:8000/register", json=data)
 
-            if response.status_code == 200:
+            if response.status_code == 201:
                 print("registered")
             else:
                 QMessageBox.warning(self, "Failed", f"register failed:\n{response.json()['detail']}")
+            
+            go_home()
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Error connecting to server:\n{str(e)}")
