@@ -3,6 +3,7 @@ from PyQt5.QtWidgets import QPushButton, QVBoxLayout, QLineEdit, QHBoxLayout, QM
 from sqlalchemy.orm import Session
 from PyQt5.QtCore import Qt
 from oauth import reg_requirements, encrypt, decrypt, Curr_user
+import requests
 
 class Login_window(QDialog):
     def __init__(self, My_window):
@@ -43,22 +44,22 @@ class Login_window(QDialog):
 
         self.setLayout(Form)
 
-    @get_session
     def submit(self, go_home, db: Session = None):
-        account = db.query(Account).filter(Account.username == self.user.text()).first()
+        try:
+            data = {
+                "username": self.user.text(),
+                "password": self.password.text()
+            }
+            response = requests.post("http://127.0.0.1:8000/login", data=data)
 
-        if not account:
-            QMessageBox.warning(self, "Verification", "User is not registered")
-            return
-        if decrypt(account.password) != self.password.text():
-            QMessageBox.warning(self, "Verification", "Password is incorrect")
-            return
-        
-        # current user variable
-        curr_user = Curr_user(account)
+            if response.status_code == 200:
+                token = response.json()["token"]
+                print("sucsseesss")
+            else:
+                QMessageBox.warning(self, "Failed", f"Login failed:\n{response.json()['detail']}")
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Error connecting to server:\n{str(e)}")
 
-        go_home(curr_user)
-    
     def toggle_password_visibility(self):
         if self.toggle_button.isChecked():
             self.password.setEchoMode(QLineEdit.Normal)  # Show password
@@ -107,29 +108,19 @@ class Register_window(QDialog):
 
         self.setLayout(Form)
 
-    @get_session
-    @reg_requirements
     def submit(self, go_home, db: Session = None):
-        citizen = db.query(Citizens).filter(Citizens.personal_id == self.pers_id.text()).first()
-        is_registered = db.query(Account).filter(Account.personal_id == self.pers_id.text()).first()
-        username_taken = db.query(Account).filter(Account.username == self.user.text()).first()
+        try:
+            data = {
+                "pers_id": self.pers_id.text(),
+                "username": self.user.text(),
+                "password": self.password.text(),
+                "r_password": self.r_password.text()
+            }
+            response = requests.post("http://127.0.0.1:8000/register", json=data)
 
-        if is_registered:
-            QMessageBox.warning(self, "Registrasion error", "Person is already Registered")
-            return
-        if username_taken:
-            QMessageBox.warning(self, "Username is taken", "Username is already taken, please choose another one")
-            return
-        if not citizen:
-            QMessageBox.warning(self, "Error 404", "Citizen not found")
-            return
-        passwrd = encrypt(self.password.text())
-
-        add_account = Account(username=self.user.text(), password=passwrd, personal_id=citizen.personal_id)
-        
-        # current user variable
-        curr_user = Curr_user(add_account)
-        
-        db.add(add_account)
-        go_home(curr_user)
-
+            if response.status_code == 200:
+                print("registered")
+            else:
+                QMessageBox.warning(self, "Failed", f"register failed:\n{response.json()['detail']}")
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Error connecting to server:\n{str(e)}")

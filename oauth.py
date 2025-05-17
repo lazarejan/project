@@ -1,11 +1,12 @@
 from PyQt5.QtWidgets import QMessageBox
 
 def reg_requirements(func):
-    def wrapper(self, *args, **kwargs):
-        username = self.user.text()
-        pas = self.password.text()
-        r_pas = self.r_password.text()
+    def wrapper(user_info):
+        username = user_info.username
+        pas = user_info.password
+        r_pas = user_info.r_password
         error_msg = []
+        print(user_info, "from reg")
 
         if username == (""):
             error_msg.append(" * Username cannot be empty")
@@ -26,10 +27,11 @@ def reg_requirements(func):
             error_msg.append(" * Passwords do not match")
 
         if error_msg:
-            QMessageBox.warning(self, "Pattern Error", "\n".join(error_msg))
+            print("reg_req error")
+            # QMessageBox.warning(self, "Pattern Error", "\n".join(error_msg))
             return
         
-        return func(self, *args, **kwargs)
+        return func(user_info)
 
     return wrapper
 

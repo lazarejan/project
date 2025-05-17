@@ -12,19 +12,12 @@ URL = f'postgresql://{settings.db_username}:{settings.db_pass}@{settings.db_host
 engine = create_engine(URL)
 SessionLocal = sessionmaker(bind=engine)
 
-def get_session(func):
-    def wrapper(*args, **kwargs):
-        session = SessionLocal()
-        try:
-            result = func(*args, **kwargs, db=session)
-            session.commit()
-            return result
-        except Exception as e:
-            session.rollback()
-            raise e
-        finally:
-            session.close()
-    return wrapper
+def get_session():
+    session = SessionLocal()
+    try:
+        yield session
+    finally:
+        session.close()
 
 base = declarative_base()
 

@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QApplication, QSizePolicy, QMainWindow, QStackedWidget, QWidget, QPushButton, QLabel, QGridLayout
 import sys
 from PyQt5.QtCore import Qt
-from services import Passport_window, Home_window
+from services import Home_window
 from auth import Login_window, Register_window
 
 class Welcome_window(QWidget):
