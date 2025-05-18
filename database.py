@@ -2,11 +2,11 @@ from sqlalchemy import CheckConstraint, ForeignKey, create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, String, DATE, Integer
-from schemas import settings
 
-URL = f'postgresql://{settings.db_username}:{settings.db_pass}@{settings.db_host}:{settings.db_port}/{settings.db_name}'
+URL = "sqlite:///mydatabase.db"
 
-engine = create_engine(URL)
+engine = create_engine(URL, connect_args={"check_same_thread": False})
+
 SessionLocal = sessionmaker(bind=engine)
 
 def get_session():
@@ -40,7 +40,7 @@ class Account(base):
     personal_id = Column(String(11), ForeignKey("citizens.personal_id"), nullable=False)
 
 class ID_card(base):
-    __tablename__ = "ID_card"
+    __tablename__ = "id_card"
 
     card_id = Column(String(9), nullable=False, unique=True, primary_key=True)
     personal_id = Column(String(11), ForeignKey("citizens.personal_id"), nullable=False)
@@ -56,7 +56,7 @@ class Passport(base):
     expiration_date = Column(DATE, nullable=False)
     
 class Car_license(base):
-    __tablename__ = "carlicense"
+    __tablename__ = "car_license"
     
     car_license_id = Column(String(9), primary_key=True)
     personal_id = Column(String(11), ForeignKey("citizens.personal_id"), nullable=False)

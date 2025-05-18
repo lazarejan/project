@@ -3,18 +3,6 @@ from pydantic import BaseModel, validator
 import re
 from datetime import date
 
-class Settings(BaseSettings):
-    db_pass: str
-    db_username: str
-    db_host: str
-    db_port: str
-    db_name: str
-    
-    class Config:
-        env_file = ".env"
-
-settings = Settings()
-
 class UserRegister(BaseModel):
     pers_id: str
     username: str

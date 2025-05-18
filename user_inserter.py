@@ -26,7 +26,7 @@ def creater(personal_id, first_name, last_name, birth_date, sex, address, db : S
 
 fake = Faker("ka_GE")
 
-for _ in range(5):
+for _ in range(25):
     sex = {"F": "მდ", "M": "მმ", "X": "-"}
 
     person = fake.profile(["name", "sex", "address"])
