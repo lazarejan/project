@@ -1,7 +1,7 @@
 from fastapi import Depends, status, HTTPException
 from sqlalchemy.orm import Session
 from fastapi.security.oauth2 import OAuth2PasswordBearer
-from database import get_session, Citizens, Account
+from database import get_session, Account
 from jose import JWTError, jwt
 from datetime import timedelta, datetime
 
@@ -33,7 +33,6 @@ def verify_access_token(token, cred):
 def get_current_user(token: str = Depends(auth_schema), db: Session = Depends(get_session)):
     cred_exp= HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="not authorized", headers= {"WWW-Authenticate": "Bearer"})
     token = verify_access_token(token, cred_exp)
-    # token is id now but later it will be schema so you have to use token.id'
     cur_user = db.query(Account).filter(Account.username == token).first()
     return cur_user
         

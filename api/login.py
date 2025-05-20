@@ -7,10 +7,11 @@ import schemas
 from . import oauth_
 
 router = APIRouter(
+    prefix="/login",
     tags=["Authentication"]
 )
 
-@router.post("/login", response_model=schemas.TokenBase)
+@router.post("", response_model=schemas.TokenBase)
 def login(user_info: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_session)):
     user = db.query(Account).filter(Account.username == user_info.username).first()
 

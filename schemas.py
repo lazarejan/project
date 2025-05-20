@@ -1,5 +1,5 @@
-from pydantic_settings import BaseSettings
-from pydantic import BaseModel, validator
+from fastapi import HTTPException
+from pydantic import BaseModel, validator, model_validator
 import re
 from datetime import date
 
@@ -11,30 +11,46 @@ class UserRegister(BaseModel):
 
     @validator('password')
     def validate_password(cls, password):
-        if 8 > len(password)  or len(password) > 20:
-            raise ValueError("Password must bebetween 8 and 20")
+        errors = []
+        
+        if len(password) < 8 or len(password) > 20:
+            errors.append("Password must be between 8 and 20 characters")
         
         if not re.search(r'[A-Z]', password):
-            raise ValueError("Password must contain at least one uppercase letter")
+            errors.append("Password must contain at least one uppercase letter")
             
         if not re.search(r'[a-z]', password):
-            raise ValueError("Password must contain at least one lowercase letter")
+            errors.append("Password must contain at least one lowercase letter")
             
         if not re.search(r'[0-9]', password):
-            raise ValueError("Password must contain at least one digit")
+            errors.append("Password must contain at least one digit")
             
         if not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
-            raise ValueError("Password must contain at least one special character")
+            errors.append("Password must contain at least one special character")
+
+        if errors:
+            raise HTTPException(status_code=400, detail="\n".join(errors))
         return password
     
     @validator("username")
     def validate_username(cls, username):
+        errors = []
+        
         if len(username) < 5 or len(username) > 20:
-            raise ValueError("passwrod must contain at least one lowercase letter")
+            errors.append("Username must be between 5 and 20 characters")
 
         if not re.search(r'[a-z]', username):
-            raise ValueError("Password must contain at least one lowercase letter")
-
+            errors.append("Username must contain at least one lowercase letter")
+            
+        if errors:
+            raise HTTPException(status_code=400, detail="\n".join(errors))
+        return username
+    
+    @model_validator(mode='after')
+    def passwords_match(self):
+        if self.password != self.r_password:
+            raise HTTPException(status_code=400, detail='Password and repeated password must be the same')
+        return self
 
 class IDCardGetBase(BaseModel):
     card_id: str

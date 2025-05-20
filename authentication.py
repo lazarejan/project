@@ -52,11 +52,9 @@ class Login_window(QDialog):
 
             if response.status_code == 200:
                 token = response.json()["token"]
-                print("sucsseesss")
+                go_home()
             else:
-                QMessageBox.warning(self, "Failed", f"Login failed:\n{response.json()['detail']}")
-            
-            go_home()
+                QMessageBox.warning(self, "Failed", f"Login failed:\n{response.json()}")
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Error connecting to server:\n{str(e)}")
         
@@ -109,7 +107,7 @@ class Register_window(QDialog):
 
         self.setLayout(Form)
 
-    def submit(self, go_home, db: Session = None):
+    def submit(self, go_home):
         try:
             data = {
                 "pers_id": self.pers_id.text(),
@@ -121,9 +119,8 @@ class Register_window(QDialog):
 
             if response.status_code == 201:
                 print("registered")
+                go_home()
             else:
-                QMessageBox.warning(self, "Failed", f"register failed:\n{response.json()['detail']}")
-            
-            go_home()
+                QMessageBox.warning(self, "Failed", f"register failed:\n{response.json()}")
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Error connecting to server:\n{str(e)}")

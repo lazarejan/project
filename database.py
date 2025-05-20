@@ -42,7 +42,7 @@ class Account(base):
 class ID_card(base):
     __tablename__ = "id_card"
 
-    card_id = Column(String(9), nullable=False, unique=True, primary_key=True)
+    card_id = Column(String(9), nullable=False, primary_key=True)
     personal_id = Column(String(11), ForeignKey("citizens.personal_id"), nullable=False)
     issue_date = Column(DATE, nullable=False)
     expiration_date = Column(DATE, nullable=False)
@@ -50,7 +50,7 @@ class ID_card(base):
 class Passport(base):
     __tablename__ = "passport"
 
-    passport_id = Column(String(9), primary_key=True, nullable=False, unique=True)
+    passport_id = Column(String(9), primary_key=True, nullable=False)
     personal_id = Column(String(11), ForeignKey("citizens.personal_id"), nullable=False)
     issue_date = Column(DATE, nullable=False)
     expiration_date = Column(DATE, nullable=False)
@@ -58,7 +58,7 @@ class Passport(base):
 class Car_license(base):
     __tablename__ = "car_license"
     
-    car_license_id = Column(String(9), primary_key=True)
+    car_license_id = Column(String(9), primary_key=True, nullable=False)
     personal_id = Column(String(11), ForeignKey("citizens.personal_id"), nullable=False)
     issue_date = Column(DATE, nullable=False)
     expiration_date = Column(DATE, nullable=False)

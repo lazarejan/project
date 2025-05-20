@@ -2,7 +2,7 @@ from PyQt5.QtWidgets import QApplication, QSizePolicy, QMainWindow, QStackedWidg
 import sys
 from PyQt5.QtCore import Qt
 from services import Home_window
-from auth import Login_window, Register_window
+from authentication import Login_window, Register_window
 
 class Welcome_window(QWidget):
     def __init__(self, My_window):

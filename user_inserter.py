@@ -1,4 +1,5 @@
-from database import Citizens, SessionLocal
+import string
+from database import Citizens, ID_card, SessionLocal, Passport, Car_license
 from sqlalchemy.orm import Session
 import datetime
 import random
@@ -24,6 +25,19 @@ def creater(personal_id, first_name, last_name, birth_date, sex, address, db : S
                            birth_date=birth_date, sex=sex, address=address)
     db.add(new_citizen)
 
+@get_session
+def post_pass_id_carlicence(pers_id, card_id, pass_id, car_id, db: Session):
+    new_id_card = ID_card(card_id=card_id, personal_id=pers_id, 
+                     issue_date=datetime.date.today(), expiration_date=datetime.date.today() + datetime.timedelta(days=365))
+    new_passport = Passport(passport_id=pass_id, personal_id=pers_id,
+                     issue_date=datetime.date.today(), expiration_date=datetime.date.today() + datetime.timedelta(days=365))
+    new_car_license = Car_license(car_license_id=car_id, personal_id=pers_id,
+                     issue_date=datetime.date.today(), expiration_date=datetime.date.today() + datetime.timedelta(days=365))
+    
+    db.add(new_id_card)
+    db.add(new_passport)
+    db.add(new_car_license)
+    
 fake = Faker("ka_GE")
 
 for _ in range(25):
@@ -34,6 +48,11 @@ for _ in range(25):
     person["sex"] = sex[person["sex"]]
     person["birth_date"] = fake.date_between(start_date=datetime.date(1940, 1, 1), end_date="today")
     person["personal_id"] = str(random.randint(9999999999, 99999999999))
-
+    person["passport_id"], person["card_id"], person["car_license_id"] = [
+        str(random.randint(10, 99)) + ''.join(random.choices(string.ascii_letters, k=2)) + str(random.randint(10000, 99999)) 
+        for _ in range(3)]
+    
     creater(personal_id=person["personal_id"], first_name=person["first_name"], last_name=person["last_name"], 
             address=person["address"], sex=person["sex"], birth_date=person["birth_date"])
+    
+    post_pass_id_carlicence(pers_id=person["personal_id"], pass_id=person["passport_id"], card_id=person["card_id"], car_id=person["car_license_id"])
