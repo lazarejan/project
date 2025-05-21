@@ -1,0 +1,53 @@
+from ast import Pass
+from fastapi import APIRouter, Depends, status, HTTPException
+from sqlalchemy.orm import Session
+from fastapi.security.oauth2 import OAuth2PasswordRequestForm
+from database import Citizens, Passport, Visa, get_session, Account, Fine, BorderStamp
+import hash
+import schemas
+from . import oauth_
+from datetime import date, timedelta
+
+router = APIRouter(
+    prefix="/update",
+    tags=["Update User Information"]
+)
+
+@router.post("/fine", response_model=schemas.FineGetBase)
+def post_fine(fine_info: schemas.FinePostBase, db: Session = Depends(get_session), curr_user: Session = Depends(oauth_.get_current_user)):
+    fine_info = fine_info.dict()
+    fine_info["issue_date"] = date.today()
+    fine_info["expiration_date"] = date.today() + timedelta(days=30)
+
+    add_fine = Fine(**fine_info)
+    db.add(add_fine)
+    db.commit()
+    db.refresh(add_fine)
+    return add_fine
+
+@router.post("/visa", response_model=schemas.VisaGetBase)
+def post_visa(visa_info: schemas.VisaPostBase, db: Session = Depends(get_session), curr_user: Session = Depends(oauth_.get_current_user)):
+    visa_info = visa_info.dict()
+    visa_info["passport_id"] = db.query(Passport).join(Citizens, Citizens.personal_id == Passport.personal_id).group_by(Passport.personal_id).first().passport_id
+    visa_info["issue_date"] = date.today()
+    visa_info["expiration_date"] = date.today() + timedelta(days=365*visa_info["duration_years"])
+    
+    del visa_info["duration_years"]
+    
+    add_visa = Visa(**visa_info)
+    db.add(add_visa)
+    db.commit()
+    db.refresh(add_visa)
+    return add_visa
+
+@router.post("/borderstamp", response_model=schemas.BorderStampGetBase)
+def post_borderstamp(borderstamp_info: schemas.BorderStampPostBase, db: Session = Depends(get_session), curr_user: Session = Depends(oauth_.get_current_user)):
+    borderstamp_info = borderstamp_info.dict()
+    borderstamp_info["timestamp"] = date.today()
+    borderstamp_info["passport_id"] = db.query(Passport).join(Citizens, Citizens.personal_id == Passport.personal_id).group_by(Passport.personal_id).first().passport_id
+
+    add_borderstamp = BorderStamp(**borderstamp_info)
+    db.add(add_borderstamp)
+    db.commit()
+    db.refresh(add_borderstamp)
+    return add_borderstamp

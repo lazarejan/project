@@ -3,6 +3,12 @@ import sys
 from PyQt5.QtCore import Qt
 from services import Home_window
 from authentication import Login_window, Register_window
+import uvicorn
+from api.main_api import app
+import threading
+
+def start_api():
+    uvicorn.run(app, host="127.0.0.1", port=8000)
 
 class Welcome_window(QWidget):
     def __init__(self, My_window):
@@ -77,7 +83,10 @@ class My_window(QMainWindow):
         self.stack.setCurrentWidget(self.home_window)
 
 if __name__ == "__main__":
-    app = QApplication(sys.argv)
+    # api_thread = threading.Thread(target=start_api, daemon=True)
+    # api_thread.start()
+
+    application = QApplication(sys.argv)
     window = My_window()
     window.show()
-    sys.exit(app.exec_())
+    sys.exit(application.exec_())

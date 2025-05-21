@@ -65,7 +65,7 @@ class PassportGetBase(BaseModel):
     expiration_date: date
 
 class CarLicenseGetBase(BaseModel):
-    car_license: str
+    car_license_id: str
     personal_id: str
     issue_date: date
     expiration_date: date
@@ -80,18 +80,37 @@ class FineGetBase(BaseModel):
     amount: int
     status: str
 
+class FinePostBase(BaseModel):
+    personal_id: str
+    type: str
+    message: str
+    amount: int
+
 class VisaGetBase(BaseModel):
     visa_id: int
+    personal_id: str
     passport_id: str
     country: str
     type: str
     issue_date: date
     expiration_date: date
 
+class VisaPostBase(BaseModel):
+    personal_id: str
+    country: str
+    type: str
+    duration_years: int
+
 class BorderStampGetBase(BaseModel):
     stamp_id: int
+    personal_id: str
     passport_id: str
     timestamp: date
+    location: str
+    direction: str
+
+class BorderStampPostBase(BaseModel):
+    personal_id: str
     location: str
     direction: str
 

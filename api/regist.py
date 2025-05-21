@@ -25,9 +25,9 @@ def register(user_info: schemas.UserRegister, db: Session = Depends(get_session)
     if not citizen:
         raise HTTPException(status_code=400, detail="Citizen not found")
 
-    passwrd = hash.encrypt(user_info.password)
+    user_info.password = hash.encrypt(user_info.password)
 
-    add_account = Account(username=user_info.username, password=passwrd, personal_id=citizen.personal_id)
+    add_account = Account(username=user_info.username, password=user_info.password, personal_id=citizen.personal_id)
     db.add(add_account)
     db.commit()
     access_token = oauth_.create_access_token({"username": user_info.username})
