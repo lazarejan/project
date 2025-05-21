@@ -1,15 +1,12 @@
-from ast import Pass
 from fastapi import APIRouter, Depends, status, HTTPException
 from sqlalchemy.orm import Session
-from fastapi.security.oauth2 import OAuth2PasswordRequestForm
-from database import Citizens, Passport, Visa, get_session, Account, Fine, BorderStamp
-import hash
-import schemas
-from . import oauth_
+from database import Citizens, Passport, Visa, get_session, Fine, BorderStamp
 from datetime import date, timedelta
+from typing import Union
+from . import oauth_
+import schemas
 
 router = APIRouter(
-    prefix="/update",
     tags=["Update User Information"]
 )
 
@@ -51,3 +48,17 @@ def post_borderstamp(borderstamp_info: schemas.BorderStampPostBase, db: Session 
     db.commit()
     db.refresh(add_borderstamp)
     return add_borderstamp
+
+@router.put("/update_fine/{doc_id}", response_model=schemas.FineGetBase)
+def upd_fine(fine_info: schemas.FinePostBase, doc_id: int, db: Session = Depends(get_session), curr_user: Session = Depends(oauth_.get_current_user)):
+    
+    fine_query = db.query(Fine).filter(Fine.fine_id == doc_id)
+    fine = fine_query.first()
+
+    if not fine:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Fine not found")
+    
+    fine_query.update(fine_info.dict(), synchronize_session=False)
+    db.commit()
+    db.refresh(fine)
+    return fine

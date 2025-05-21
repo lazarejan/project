@@ -1,8 +1,8 @@
-import string
 from database import Citizens, ID_card, SessionLocal, Passport, Car_license
 from sqlalchemy.orm import Session
 import datetime
 import random
+import string
 from faker import Faker
 
 def get_session(func):

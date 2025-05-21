@@ -1,7 +1,7 @@
 from fastapi import HTTPException
 from pydantic import BaseModel, validator, model_validator
-import re
 from datetime import date
+import re
 
 class UserRegister(BaseModel):
     pers_id: str
@@ -85,6 +85,7 @@ class FinePostBase(BaseModel):
     type: str
     message: str
     amount: int
+    status: str = "unpaid"
 
 class VisaGetBase(BaseModel):
     visa_id: int

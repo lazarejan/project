@@ -1,5 +1,4 @@
 from PyQt5.QtWidgets import QPushButton, QVBoxLayout, QLineEdit, QHBoxLayout, QMessageBox, QDialog
-from sqlalchemy.orm import Session
 from PyQt5.QtCore import Qt
 import requests
 

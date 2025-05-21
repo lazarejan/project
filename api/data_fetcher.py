@@ -1,6 +1,6 @@
-from fastapi import APIRouter, Depends, status, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from database import get_session, Citizens, Account, Passport, ID_card, Car_license, Fine, Visa, BorderStamp
+from database import get_session, Passport, ID_card, Car_license, Fine, Visa, BorderStamp
 import schemas
 from . import oauth_
 from typing import Union
@@ -16,7 +16,7 @@ router = APIRouter(
                                                 list[schemas.FineGetBase], 
                                                 list[schemas.VisaGetBase], 
                                                 list[schemas.BorderStampGetBase]])
-def data_fetch(doc_type: str, db: Session = Depends(get_session), curr_user: Session = Depends(oauth_.get_current_user)):
+def user_data(doc_type: str, db: Session = Depends(get_session), curr_user: Session = Depends(oauth_.get_current_user)):
     if doc_type == "passport":
         doc = db.query(Passport).filter(Passport.personal_id == curr_user.personal_id).first()
     elif doc_type == "id_card":
@@ -34,5 +34,54 @@ def data_fetch(doc_type: str, db: Session = Depends(get_session), curr_user: Ses
 
     if not doc:
         raise HTTPException(status_code=404, detail=f"{doc_type} not found for the user")
+    
+    return doc
+
+@router.get("/search/{doc_type}", response_model=Union[list[schemas.FineGetBase], 
+                                                list[schemas.VisaGetBase], 
+                                                list[schemas.BorderStampGetBase]])
+def search_data(doc_type: str, db: Session = Depends(get_session), search: str = "", search_type: str = "", order_by: str = "", sort: str = "asc"):
+    docs = {"visa": Visa, "borderstamp": BorderStamp, "fine": Fine}
+    
+    match doc_type:
+        case "visa":
+            doc_query = db.query(Visa)
+        case "borderstamp":
+            doc_query = db.query(BorderStamp)
+        case "fine":
+            doc_query = db.query(Fine)
+        case _:
+            raise HTTPException(status_code=400, detail="Invalid document type")
+        
+    match search_type:
+        case "personal_id":
+            doc_query = doc_query.filter(docs[doc_type].personal_id == search)
+        case "type":
+            doc_query = doc_query.filter(docs[doc_type].type == search)
+        case "status":
+            doc_query = doc_query.filter(docs[doc_type].status == search)
+        case "country":
+            doc_query = doc_query.filter(docs[doc_type].country == search)
+        case _:
+            raise HTTPException(status_code=400, detail="Invalid search type")
+    
+    if order_by:
+        match order_by, sort:
+            case "issue_date", "desc":
+                doc_query = doc_query.order_by(docs[doc_type].issue_date.desc())
+            case "issue_date", "asc":
+                doc_query = doc_query.order_by(docs[doc_type].issue_date.asc())
+            case "expiration_date", "desc":
+                doc_query = doc_query.order_by(docs[doc_type].expiration_date.desc())
+            case "expiration_date", "asc":
+                doc_query = doc_query.order_by(docs[doc_type].expiration_date.asc())
+            case "amount", "desc":
+                doc_query = doc_query.order_by(docs[doc_type].amount.desc())
+            case "amount", "asc":
+                doc_query = doc_query.order_by(docs[doc_type].amount.asc())
+            case _:
+                raise HTTPException(status_code=400, detail="Invalid order by or sort type")
+        
+    doc = doc_query.all()
     
     return doc
