@@ -52,19 +52,20 @@ def search_data(doc_type: str, db: Session = Depends(get_session), search: str =
             doc_query = db.query(Fine)
         case _:
             raise HTTPException(status_code=400, detail="Invalid document type")
-        
-    match search_type:
-        case "personal_id":
-            doc_query = doc_query.filter(docs[doc_type].personal_id == search)
-        case "type":
-            doc_query = doc_query.filter(docs[doc_type].type == search)
-        case "status":
-            doc_query = doc_query.filter(docs[doc_type].status == search)
-        case "country":
-            doc_query = doc_query.filter(docs[doc_type].country == search)
-        case _:
-            raise HTTPException(status_code=400, detail="Invalid search type")
     
+    if search_type:
+        match search_type:
+            case "personal_id":
+                doc_query = doc_query.filter(docs[doc_type].personal_id.like(f"{search}%"))
+            case "type":
+                doc_query = doc_query.filter(docs[doc_type].type == search)
+            case "status":
+                doc_query = doc_query.filter(docs[doc_type].status == search)
+            case "country":
+                doc_query = doc_query.filter(docs[doc_type].country == search)
+            case _:
+                raise HTTPException(status_code=400, detail="Invalid search type")
+        
     if order_by:
         match order_by, sort:
             case "issue_date", "desc":
@@ -85,3 +86,17 @@ def search_data(doc_type: str, db: Session = Depends(get_session), search: str =
     doc = doc_query.all()
     
     return doc
+
+@router.put("/update_fine_status/{doc_id}", response_model=schemas.FineGetBase)
+def upd_fine(doc_id: int, db: Session = Depends(get_session), curr_user: Session = Depends(oauth_.get_current_user)):
+    
+    fine_query = db.query(Fine).filter(Fine.fine_id == doc_id)
+    fine = fine_query.first()
+
+    if not fine:
+        raise HTTPException(status_code=404, detail="Fine not found")
+    fine.status = "paid"
+
+    db.commit()
+    db.refresh(fine)
+    return fine

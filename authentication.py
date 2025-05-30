@@ -2,6 +2,9 @@ from PyQt5.QtWidgets import QPushButton, QVBoxLayout, QLineEdit, QHBoxLayout, QM
 from PyQt5.QtCore import Qt
 import requests
 
+class AppState:
+    token = None
+
 class Login_window(QDialog):
     def __init__(self, My_window):
         super().__init__()
@@ -50,7 +53,7 @@ class Login_window(QDialog):
             response = requests.post("http://127.0.0.1:8000/login", data=data)
 
             if response.status_code == 200:
-                token = response.json()["token"]
+                AppState.token = response.json()["token"]
                 go_home()
             else:
                 QMessageBox.warning(self, "Failed", f"Login failed:\n{response.json()}")
@@ -118,6 +121,7 @@ class Register_window(QDialog):
 
             if response.status_code == 201:
                 print("registered")
+                AppState.token = response.json()["token"]
                 go_home()
             else:
                 QMessageBox.warning(self, "Failed", f"register failed:\n{response.json()}")
