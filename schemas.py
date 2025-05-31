@@ -3,6 +3,8 @@ from pydantic import BaseModel, validator, model_validator
 from datetime import date
 import re
 
+from database import Car_license
+
 class UserRegister(BaseModel):
     pers_id: str
     username: str
@@ -58,17 +60,26 @@ class IDCardGetBase(BaseModel):
     issue_date: date
     expiration_date: date
 
+    class Config:
+        from_attributes = True
+
 class PassportGetBase(BaseModel):
     passport_id: str
     personal_id: str
     issue_date: date
     expiration_date: date
+    
+    class Config:
+        from_attributes = True
 
 class CarLicenseGetBase(BaseModel):
     car_license_id: str
     personal_id: str
     issue_date: date
     expiration_date: date
+    
+    class Config:
+        from_attributes = True
 
 class FineGetBase(BaseModel):
     fine_id: int
@@ -115,5 +126,18 @@ class BorderStampPostBase(BaseModel):
     location: str
     direction: str
 
+class UserInfoGetBase(BaseModel):
+    first_name: str
+    last_name: str
+    birth_date: date
+    sex: str
+    address: str
+    id_card: IDCardGetBase
+    passport: PassportGetBase
+    car_license: CarLicenseGetBase
+    
+    class Config:
+        from_attributes = True
+        
 class TokenBase(BaseModel):
     token: str

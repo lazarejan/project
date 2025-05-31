@@ -2,14 +2,33 @@ from PyQt5.QtWidgets import (QApplication, QSizePolicy, QMainWindow, QStackedWid
                              QLabel, QLineEdit, QFormLayout, QHBoxLayout, QMessageBox, QDialog, QGridLayout)
 from PyQt5 import QtCore, QtWidgets
 import requests
-
 from authentication import AppState
+from database import Passport
 
 class Home_window(QWidget):
     def __init__(self, My_window):
         super().__init__()
         self.setWindowTitle("Home")
+        self.data = self.fetch()
         self.setupUi(self)
+
+    def fetch(self):
+        try:
+            headers = {
+                "Authorization": f"Bearer {AppState.token}"
+            }
+
+            user = requests.get("http://127.0.0.1:8000/data_fetch", headers=headers)
+            fine = requests.get("http://127.0.0.1:8000/data_fetch/fine", headers=headers)
+            borderstamp = requests.get("http://127.0.0.1:8000/data_fetch/borderstamp", headers=headers)
+            visa = requests.get("http://127.0.0.1:8000/data_fetch/visa", headers=headers)
+            
+            if user.status_code == 200 and fine.status_code == 200 and borderstamp.status_code == 200 and visa.status_code == 200:
+                return user.text, fine.json(), visa.text, borderstamp.text
+            else:
+                QMessageBox.warning(self, "Failed", f"Login failed:\n{user.json()}")
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Error connecting to server:\n{str(e)}")
 
     # Generated UI code
     def setupUi(self, Form):
@@ -251,18 +270,18 @@ class Home_window(QWidget):
         self.verticalLayout_2.addWidget(self.tabWidget)
 
         self.retranslateUi(Form)
-        self.tabWidget.setCurrentIndex(2)
+        self.tabWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(Form)
 
     def retranslateUi(self, Form):
         _translate = QtCore.QCoreApplication.translate
         Form.setWindowTitle(_translate("Form", "Form"))
-        self.label_9.setText(_translate("Form", "აიდი ნ"))
-        self.label_8.setText(_translate("Form", "გაცემის თ"))
-        self.label_5.setText(_translate("Form", "ვადის ამოწ"))
-        self.label_7.setText(_translate("Form", "მოქ"))
-        self.label_6.setText(_translate("Form", "სქესი"))
-        self.label_4.setText(_translate("Form", "პირადი ნ"))
+        self.label_9.setText(_translate("Form", f"აიდი ნ: "))
+        self.label_8.setText(_translate("Form", f"გაცემის თ: "))
+        self.label_5.setText(_translate("Form", f"ვადის ამოწ "))
+        self.label_7.setText(_translate("Form", "მოქ: georgia"))
+        self.label_6.setText(_translate("Form", f"სქესი male"))
+        self.label_4.setText(_translate("Form", f"პირადი ნ "))
         self.label_3.setText(_translate("Form", "გვარი"))
         self.label_2.setText(_translate("Form", "სახელი"))
         self.label.setText(_translate("Form", "დაბადებისთარიღი"))
@@ -284,9 +303,6 @@ class Home_window(QWidget):
         self.label_39.setText(_translate("Form", "TextLabel"))
         self.label_40.setText(_translate("Form", "TextLabel"))
         self.pushButton_5.setText(_translate("Form", "PushButton"))
-        print("button set")
-        self.pushButton_5.clicked.connect(lambda: self.test())
-
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("Form", "Passport"))
         self.label_19.setText(_translate("Form", "გაცემის თ"))
         self.label_20.setText(_translate("Form", "ვადის ამოწ"))
@@ -302,27 +318,39 @@ class Home_window(QWidget):
         self.label_42.setText(_translate("Form", "TextLabel"))
         self.pushButton_6.setText(_translate("Form", "PushButton"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3), _translate("Form", "Car licese"))
+        data = [
+            {"date": "2024-01-12", "amount": "50 GEL", "reason": "Speeding"},
+            {"date": "2024-02-10", "amount": "30 GEL", "reason": "Parking"},
+            {"date": "2024-03-01", "amount": "70 GEL", "reason": "Red light"},
+        ]
+        self.populate_id_scroll(self.data[1])
+    
+    def populate_id_scroll(self, fines_data):
+        for i in reversed(range(self.verticalLayout_8.count())):
+            widget = self.verticalLayout_8.itemAt(i).widget()
+            if widget is not None:
+                widget.deleteLater()
+        for fine in fines_data:
+            layout = QtWidgets.QHBoxLayout()
+            layout.setContentsMargins(5, 10, 5, 10)
+            layout.setSpacing(7)
+            date_label = QtWidgets.QLabel(f"Date: {fine['issue_date']}")
+            amount_label = QtWidgets.QLabel(f"Amount: {fine['amount']}")
+            push_button = QtWidgets.QPushButton("pushit")
+            push_button.clicked.connect(lambda checked, b=push_button, id=fine["fine_id"]: self.test(b, id))
 
-    def test(self):
-        print("hello")
-        ls = []
-        self.horizontalLayout = QtWidgets.QHBoxLayout()
-        self.horizontalLayout.setContentsMargins(5, 10, 5, 10)
-        self.horizontalLayout.setSpacing(7)
-        self.horizontalLayout.setObjectName("horizontalLayout")
-        self.label_32 = QtWidgets.QLabel(self.scrollAreaWidgetContents_2)
-        self.label_32.setObjectName("label_32")
-        self.horizontalLayout.addWidget(self.label_32)
-        self.label_31 = QtWidgets.QLabel(self.scrollAreaWidgetContents_2)
-        self.label_31.setObjectName("label_31")
-        self.horizontalLayout.addWidget(self.label_31)
-        self.pushButton = QtWidgets.QPushButton(self.scrollAreaWidgetContents_2)
-        self.pushButton.setObjectName("pushButton")
-        self.horizontalLayout.addWidget(self.pushButton)
-        self.horizontalLayout.setStretch(0, 1)
-        self.horizontalLayout.setStretch(1, 1)
-        self.verticalLayout_8.addLayout(self.horizontalLayout)
-        
-        self.label_32.setText("TextLabel")
-        self.label_31.setText("TextLabel")
-        self.pushButton.setText("PushButton")
+            layout.addWidget(date_label)
+            layout.addWidget(amount_label)
+            layout.addWidget(push_button)
+
+            layout.setStretch(0, 1)
+            layout.setStretch(1, 1)
+
+            container = QtWidgets.QWidget()
+            container.setLayout(layout)
+            self.verticalLayout_8.addWidget(container)
+
+    def test(self, but, id):
+        but.setText("newtextt")
+        print(id)
+            

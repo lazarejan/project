@@ -1,5 +1,5 @@
 from sqlalchemy import CheckConstraint, ForeignKey, create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, relationship
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, String, DATE, Integer
 
@@ -28,9 +28,15 @@ class Citizens(base):
     sex = Column(String, nullable=False) 
     address = Column(String, nullable=False)
 
+    id_card = relationship("ID_card", uselist=False)
+    passport = relationship("Passport", uselist=False)
+    car_license = relationship("Car_license", uselist=False)
+
     __table_args__ = (
         CheckConstraint("sex in ('მმ', 'მდ')", name="check_sex"),
     )
+    
+    
 
 class Account(base):
     __tablename__ = "account"

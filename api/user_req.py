@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from database import get_session, Passport, ID_card, Car_license, Fine, Visa, BorderStamp
+from database import Citizens, get_session, Passport, ID_card, Car_license, Fine, Visa, BorderStamp
 import schemas
 from . import oauth_
 from typing import Union
@@ -9,6 +9,19 @@ router = APIRouter(
     prefix="/data_fetch",
     tags=["Data fetcher"]
 )
+
+@router.get("", response_model=schemas.UserInfoGetBase)
+def user(db: Session = Depends(get_session), curr_user: Session = Depends(oauth_.get_current_user)):
+    citizen = db.query(Citizens).filter(
+        Citizens.personal_id == curr_user.personal_id
+    ).first()
+    
+    if not citizen:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Handle the case where id_card is a list
+    
+    return citizen
 
 @router.get("/{doc_type}", response_model=Union[schemas.PassportGetBase, 
                                                 schemas.IDCardGetBase, 
