@@ -13,9 +13,6 @@ token_blacklist = set()
 def blacklist_token(jti: str):
     token_blacklist.add(jti)
 
-def is_token_blacklisted(jti: str) -> bool:
-    return jti in token_blacklist
-
 SECRET_KEY = "hello this is key"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60
@@ -31,26 +28,27 @@ def create_access_token(data: dict):
 def verify_access_token(token):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=ALGORITHM)
-        # create acces token with username data
         jti = payload.get("jti")
-        if jti and is_token_blacklisted(jti):
+        if jti and jti in token_blacklist:
             raise HTTPException(status_code=401, detail="Token has been revoked")
-        return id
+        return payload.get("username")
     except JWTError:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authorized", headers= {"WWW-Authenticate": "Bearer"})
-
-def logout(token: str = Depends(auth_schema)):
-    try:
-        print(token)
-        payload = jwt.decode(token, SECRET_KEY, algorithms=ALGORITHM)
-        jti = payload.get("jti")
-        if jti:
-            blacklist_token(jti)
-        return {"msg": "Logged out successfully"}
-    except JWTError:
-        raise HTTPException(status_code=400, detail="Invalid token")
 
 def get_current_user(token: str = Depends(auth_schema), db: Session = Depends(get_session)):
     token = verify_access_token(token)
     cur_user = db.query(Account).filter(Account.username == token).first()
     return cur_user
+
+def logout_user(token: str):
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        jti = payload.get("jti")
+        if jti and jti in token_blacklist:
+            raise HTTPException(status_code=401, detail="Token already revoked")
+        if jti:
+            blacklist_token(jti)
+            return True
+        return False
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Invalid or expired token")

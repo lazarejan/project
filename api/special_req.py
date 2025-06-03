@@ -1,5 +1,3 @@
-from operator import add
-from re import A
 from fastapi import APIRouter, Depends, status, HTTPException
 from sqlalchemy.orm import Session
 from database import Car, Citizens, Passport, Visa, get_session, Fine, BorderStamp
