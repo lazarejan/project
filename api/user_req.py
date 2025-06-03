@@ -19,8 +19,6 @@ def user(db: Session = Depends(get_session), curr_user: Session = Depends(oauth_
     if not citizen:
         raise HTTPException(status_code=404, detail="User not found")
     
-    # Handle the case where id_card is a list
-    
     return citizen
 
 @router.get("/{doc_type}", response_model=Union[schemas.PassportGetBase, 

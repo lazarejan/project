@@ -56,9 +56,9 @@ class Login_window(QDialog):
                 AppState.token = response.json()["token"]
                 go_home()
             else:
-                QMessageBox.warning(self, "Failed", f"Login failed:\n{response.json()}")
+                QMessageBox.warning(self, "Failed", f"Login failed:\nusername or password is incorrect")
         except Exception as e:
-            QMessageBox.critical(self, "Error", f"Error connectinggg to server:\n{str(e)}")
+            QMessageBox.critical(self, "Error", f"Error connecting to server:\n{str(e)}")
         
 
     def toggle_password_visibility(self):
@@ -124,6 +124,6 @@ class Register_window(QDialog):
                 AppState.token = response.json()["token"]
                 go_home()
             else:
-                QMessageBox.warning(self, "Failed", f"register failed:\n{response.json()}")
+                QMessageBox.warning(self, "Failed", f"register failed:\n{response.json()["detail"]}")
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Error connecting to server:\n{str(e)}")

@@ -1,11 +1,14 @@
+from operator import add
+from re import A
 from fastapi import APIRouter, Depends, status, HTTPException
 from sqlalchemy.orm import Session
-from database import Citizens, Passport, Visa, get_session, Fine, BorderStamp
+from database import Car, Citizens, Passport, Visa, get_session, Fine, BorderStamp
 from datetime import date, timedelta
 from . import oauth_
 import schemas
 
 # these requests are for special users (police, border guard etc)
+# last step: dont forget to add curr_user checker so that it checks whether request is sent from special_user or not
 
 router = APIRouter(
     tags=["Update User Information"]
@@ -15,7 +18,9 @@ router = APIRouter(
 def post_fine(fine_info: schemas.FinePostBase, db: Session = Depends(get_session), curr_user: Session = Depends(oauth_.get_current_user)):
     fine_info = fine_info.dict()
     fine_info["issue_date"] = date.today()
-    fine_info["expiration_date"] = date.today() + timedelta(days=30)
+    fine_info["expiration_date"] = date.today() + timedelta(days=fine_info["duration_days"])
+
+    del fine_info["duration_days"]
 
     add_fine = Fine(**fine_info)
     db.add(add_fine)
@@ -49,3 +54,17 @@ def post_borderstamp(borderstamp_info: schemas.BorderStampPostBase, db: Session 
     db.commit()
     db.refresh(add_borderstamp)
     return add_borderstamp
+
+@router.post("/car", response_model=schemas.CarBase)
+def post_car(car_info: schemas.CarBase, db: Session = Depends(get_session), curr_user: Session = Depends(oauth_.get_current_user)):
+    car_info = car_info.dict()
+    is_car_id = db.query(Car).filter(Car.car_id == car_info["car_id"]).first()
+
+    if is_car_id:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="car id already exists")    
+
+    add_car = Car(**car_info)
+    db.add(add_car)
+    db.commit()
+    db.refresh(add_car)
+    return add_car

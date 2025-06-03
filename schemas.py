@@ -3,8 +3,6 @@ from pydantic import BaseModel, validator, model_validator
 from datetime import date
 import re
 
-from database import Car_license
-
 class UserRegister(BaseModel):
     pers_id: str
     username: str
@@ -27,7 +25,7 @@ class UserRegister(BaseModel):
         if not re.search(r'[0-9]', password):
             errors.append("Password must contain at least one digit")
             
-        if not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
+        if not re.search(r'[!@#$%^&*(),.?":{}|<>_\-=+]', password):
             errors.append("Password must contain at least one special character")
 
         if errors:
@@ -97,6 +95,7 @@ class FinePostBase(BaseModel):
     message: str
     amount: int
     status: str = "unpaid"
+    duration_days: int
 
 class VisaGetBase(BaseModel):
     visa_id: int
@@ -138,6 +137,12 @@ class UserInfoGetBase(BaseModel):
     
     class Config:
         from_attributes = True
+
+class CarBase(BaseModel):
+    car_id: str
+    brand: str
+    model: str
+    owner: str
         
 class TokenBase(BaseModel):
     token: str

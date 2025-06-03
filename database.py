@@ -1,7 +1,7 @@
-from sqlalchemy import CheckConstraint, ForeignKey, create_engine
+from sqlalchemy import CheckConstraint, ForeignKey, Nullable, create_engine, null
 from sqlalchemy.orm import sessionmaker, relationship
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, String, DATE, Integer
+from sqlalchemy import Column, DATE, Integer, BOOLEAN, String
 
 URL = "sqlite:///mydatabase.db"
 
@@ -68,6 +68,14 @@ class Car_license(base):
     personal_id = Column(String(11), ForeignKey("citizens.personal_id"), nullable=False)
     issue_date = Column(DATE, nullable=False)
     expiration_date = Column(DATE, nullable=False)
+
+class Car(base):
+    __tablename__ = "car"
+
+    car_id = Column(String, primary_key=True, nullable=False)
+    brand = Column(String, nullable=False)
+    model = Column(String, nullable=False)
+    owner = Column(String(9), ForeignKey("citizens.personal_id"), nullable=False)
 
 class Fine(base):
     __tablename__ = "fine"
