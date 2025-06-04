@@ -106,7 +106,7 @@ def upd_fine(doc_id: int, db: Session = Depends(get_session), curr_user: Session
 
     if not fine:
         raise HTTPException(status_code=404, detail="Fine not found")
-    fine.status = "paid"
+    fine.status = "გადახდილი"
 
     db.commit()
     db.refresh(fine)

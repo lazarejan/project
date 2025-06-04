@@ -28,7 +28,7 @@ def creater(personal_id, first_name, last_name, birth_date, sex, address, db : S
 @get_session
 def post_pass_id_carlicence(pers_id, card_id, pass_id, car_id, db: Session):
     new_id_card = ID_card(card_id=card_id, personal_id=pers_id, 
-                     issue_date=datetime.date.today(), expiration_date=datetime.date.today() + datetime.timedelta(days=365))
+                     issue_date=datetime.date.today(), expiration_date=datetime.date.today() - datetime.timedelta(days=365))
     new_passport = Passport(passport_id=pass_id, personal_id=pers_id,
                      issue_date=datetime.date.today(), expiration_date=datetime.date.today() + datetime.timedelta(days=365))
     if car_id:
@@ -54,7 +54,7 @@ def post_car(pers_id, cars_num, db: Session):
     
 fake = Faker("ka_GE")
 
-for _ in range(25):
+for _ in range(50):
     sex = {"F": "მდ", "M": "მმ", "X": "-"}
 
     person = fake.profile(["name", "sex", "address"])

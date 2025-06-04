@@ -1,11 +1,13 @@
+from typing import Optional
 from fastapi import HTTPException
-from pydantic import BaseModel, validator, model_validator
+from pydantic import BaseModel, EmailStr, validator, model_validator
 from datetime import date
 import re
 
 class UserRegister(BaseModel):
     pers_id: str
     username: str
+    email: EmailStr
     password: str
     r_password: str
 
@@ -57,6 +59,7 @@ class IDCardGetBase(BaseModel):
     personal_id: str
     issue_date: date
     expiration_date: date
+    status: str
 
     class Config:
         from_attributes = True
@@ -66,6 +69,7 @@ class PassportGetBase(BaseModel):
     personal_id: str
     issue_date: date
     expiration_date: date
+    status: str
     
     class Config:
         from_attributes = True
@@ -75,6 +79,7 @@ class CarLicenseGetBase(BaseModel):
     personal_id: str
     issue_date: date
     expiration_date: date
+    status: str
     
     class Config:
         from_attributes = True
@@ -94,7 +99,6 @@ class FinePostBase(BaseModel):
     type: str
     message: str
     amount: int
-    status: str = "unpaid"
     duration_days: int
 
 class VisaGetBase(BaseModel):
@@ -105,6 +109,7 @@ class VisaGetBase(BaseModel):
     type: str
     issue_date: date
     expiration_date: date
+    status: str 
 
 class VisaPostBase(BaseModel):
     personal_id: str
@@ -133,7 +138,7 @@ class UserInfoGetBase(BaseModel):
     address: str
     id_card: IDCardGetBase
     passport: PassportGetBase
-    car_license: CarLicenseGetBase
+    car_license: Optional[CarLicenseGetBase] = None
     
     class Config:
         from_attributes = True
