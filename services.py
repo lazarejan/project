@@ -3,10 +3,9 @@ from PyQt5.QtWidgets import (QApplication, QSizePolicy, QMainWindow, QStackedWid
 from PyQt5 import QtCore, QtWidgets
 import requests
 from authentication import AppState
-from database import Passport
 
 class Home_window(QWidget):
-    def __init__(self, My_window):
+    def __init__(self):
         super().__init__()
         self.setWindowTitle("Home")
         self.data = self.fetch()
@@ -14,6 +13,7 @@ class Home_window(QWidget):
 
     def fetch(self):
         try:
+            print(AppState.token)
             headers = {
                 "Authorization": f"Bearer {AppState.token}"
             }
@@ -23,10 +23,24 @@ class Home_window(QWidget):
             borderstamp = requests.get("http://127.0.0.1:8000/data_fetch/borderstamp", headers=headers)
             visa = requests.get("http://127.0.0.1:8000/data_fetch/visa", headers=headers)
             
-            if user.status_code == 200 and fine.status_code == 200 and borderstamp.status_code == 200 and visa.status_code == 200:
-                return user.text, fine.json(), visa.text, borderstamp.text
+            res = {}
+
+            if user.status_code == 200:
+                res["user"] = user.json()
             else:
                 QMessageBox.warning(self, "Failed", f"Login failed:\n{user.json()}")
+                return
+            
+            for name, doc in {"fine": fine, "borderstamp": borderstamp, "visa": visa}.items():
+                if doc.status_code == 200:
+                    res[f'{name}_list'] = doc.json()
+                elif doc.status_code == 404:
+                    res[f'{name}_list'] = None
+                else:
+                    QMessageBox.warning(self, "Failed", f"data fetch failed:\n{doc.json()}")
+                    return
+            print("done")
+            return res
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Error connecting to server:\n{str(e)}")
 
@@ -93,8 +107,8 @@ class Home_window(QWidget):
         sizePolicy.setHeightForWidth(self.scrollAreaWidgetContents_2.sizePolicy().hasHeightForWidth())
         self.scrollAreaWidgetContents_2.setSizePolicy(sizePolicy)
         self.scrollAreaWidgetContents_2.setObjectName("scrollAreaWidgetContents_2")
-        self.verticalLayout_8 = QtWidgets.QVBoxLayout(self.scrollAreaWidgetContents_2)
-        self.verticalLayout_8.setObjectName("verticalLayout_8")
+        self.id_scroll_content = QtWidgets.QVBoxLayout(self.scrollAreaWidgetContents_2)
+        self.id_scroll_content.setObjectName("id_scroll_content")
         self.horizontalLayout = QtWidgets.QHBoxLayout()
         self.horizontalLayout.setContentsMargins(5, 10, 5, 10)
         self.horizontalLayout.setSpacing(7)
@@ -110,7 +124,7 @@ class Home_window(QWidget):
         self.horizontalLayout.addWidget(self.pushButton)
         self.horizontalLayout.setStretch(0, 1)
         self.horizontalLayout.setStretch(1, 1)
-        self.verticalLayout_8.addLayout(self.horizontalLayout)
+        self.id_scroll_content.addLayout(self.horizontalLayout)
         self.id_scroll.setWidget(self.scrollAreaWidgetContents_2)
         self.verticalLayout_4.addWidget(self.id_scroll)
         self.tabWidget.addTab(self.tab, "")
@@ -169,8 +183,8 @@ class Home_window(QWidget):
         sizePolicy.setHeightForWidth(self.scrollAreaWidgetContents.sizePolicy().hasHeightForWidth())
         self.scrollAreaWidgetContents.setSizePolicy(sizePolicy)
         self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
-        self.verticalLayout_9 = QtWidgets.QVBoxLayout(self.scrollAreaWidgetContents)
-        self.verticalLayout_9.setObjectName("verticalLayout_9")
+        self.pass_scroll_content = QtWidgets.QVBoxLayout(self.scrollAreaWidgetContents)
+        self.pass_scroll_content.setObjectName("pass_scroll_content")
         self.horizontalLayout_11 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_11.setContentsMargins(5, 10, 5, 10)
         self.horizontalLayout_11.setSpacing(7)
@@ -186,7 +200,7 @@ class Home_window(QWidget):
         self.horizontalLayout_11.addWidget(self.pushButton_5)
         self.horizontalLayout_11.setStretch(0, 1)
         self.horizontalLayout_11.setStretch(1, 1)
-        self.verticalLayout_9.addLayout(self.horizontalLayout_11)
+        self.pass_scroll_content.addLayout(self.horizontalLayout_11)
         self.pass_scroll.setWidget(self.scrollAreaWidgetContents)
         self.verticalLayout_3.addWidget(self.pass_scroll)
         self.tabWidget.addTab(self.tab_2, "")
@@ -245,8 +259,8 @@ class Home_window(QWidget):
         sizePolicy.setHeightForWidth(self.scrollAreaWidgetContents_3.sizePolicy().hasHeightForWidth())
         self.scrollAreaWidgetContents_3.setSizePolicy(sizePolicy)
         self.scrollAreaWidgetContents_3.setObjectName("scrollAreaWidgetContents_3")
-        self.verticalLayout_10 = QtWidgets.QVBoxLayout(self.scrollAreaWidgetContents_3)
-        self.verticalLayout_10.setObjectName("verticalLayout_10")
+        self.car_scroll_content = QtWidgets.QVBoxLayout(self.scrollAreaWidgetContents_3)
+        self.car_scroll_content.setObjectName("car_scroll_content")
         self.horizontalLayout_12 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_12.setSizeConstraint(QtWidgets.QLayout.SetMaximumSize)
         self.horizontalLayout_12.setContentsMargins(5, 10, 5, 10)
@@ -263,25 +277,25 @@ class Home_window(QWidget):
         self.horizontalLayout_12.addWidget(self.pushButton_6)
         self.horizontalLayout_12.setStretch(0, 1)
         self.horizontalLayout_12.setStretch(1, 1)
-        self.verticalLayout_10.addLayout(self.horizontalLayout_12)
+        self.car_scroll_content.addLayout(self.horizontalLayout_12)
         self.car_scroll.setWidget(self.scrollAreaWidgetContents_3)
         self.verticalLayout_5.addWidget(self.car_scroll)
         self.tabWidget.addTab(self.tab_3, "")
         self.verticalLayout_2.addWidget(self.tabWidget)
 
         self.retranslateUi(Form)
-        self.tabWidget.setCurrentIndex(0)
+        self.tabWidget.setCurrentIndex(2)
         QtCore.QMetaObject.connectSlotsByName(Form)
 
     def retranslateUi(self, Form):
         _translate = QtCore.QCoreApplication.translate
         Form.setWindowTitle(_translate("Form", "Form"))
-        self.label_9.setText(_translate("Form", f"აიდი ნ: "))
-        self.label_8.setText(_translate("Form", f"გაცემის თ: "))
-        self.label_5.setText(_translate("Form", f"ვადის ამოწ "))
-        self.label_7.setText(_translate("Form", "მოქ: georgia"))
-        self.label_6.setText(_translate("Form", f"სქესი male"))
-        self.label_4.setText(_translate("Form", f"პირადი ნ "))
+        self.label_9.setText(_translate("Form", "აიდი ნ"))
+        self.label_8.setText(_translate("Form", "გაცემის თ"))
+        self.label_5.setText(_translate("Form", "ვადის ამოწ"))
+        self.label_7.setText(_translate("Form", "მოქ"))
+        self.label_6.setText(_translate("Form", "სქესი"))
+        self.label_4.setText(_translate("Form", "პირადი ნ"))
         self.label_3.setText(_translate("Form", "გვარი"))
         self.label_2.setText(_translate("Form", "სახელი"))
         self.label.setText(_translate("Form", "დაბადებისთარიღი"))
@@ -318,18 +332,26 @@ class Home_window(QWidget):
         self.label_42.setText(_translate("Form", "TextLabel"))
         self.pushButton_6.setText(_translate("Form", "PushButton"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3), _translate("Form", "Car licese"))
+        
         data = [
             {"date": "2024-01-12", "amount": "50 GEL", "reason": "Speeding"},
             {"date": "2024-02-10", "amount": "30 GEL", "reason": "Parking"},
             {"date": "2024-03-01", "amount": "70 GEL", "reason": "Red light"},
         ]
-        self.populate_id_scroll(self.data[1])
+        print(bool(self.data["fine_list"]), self.data["fine_list"])
+        if self.data["fine_list"]:
+            self.fine_get(self.data["fine_list"])
+        if self.data["visa_list"]:
+            self.visa_get(self.data["visa_list"])
+        # if self.data["borderstamp_list"]:
+        #     pass
     
-    def populate_id_scroll(self, fines_data):
-        for i in reversed(range(self.verticalLayout_8.count())):
-            widget = self.verticalLayout_8.itemAt(i).widget()
+    def fine_get(self, fines_data):
+        for i in reversed(range(self.id_scroll_content.count())):
+            widget = self.id_scroll_content.itemAt(i).widget()
             if widget is not None:
                 widget.deleteLater()
+        
         for fine in fines_data:
             layout = QtWidgets.QHBoxLayout()
             layout.setContentsMargins(5, 10, 5, 10)
@@ -348,9 +370,34 @@ class Home_window(QWidget):
 
             container = QtWidgets.QWidget()
             container.setLayout(layout)
-            self.verticalLayout_8.addWidget(container)
+            self.id_scroll_content.addWidget(container)
+    
+    def visa_get(self, visa_date):
+        for i in reversed(range(self.pass_scroll_content.count())):
+            widget = self.pass_scroll_content.itemAt(i).widget()
+            if widget is not None:
+                widget.deleteLater()
+        
+        for visa in visa_date:
+            layout = QtWidgets.QHBoxLayout()
+            layout.setContentsMargins(5, 10, 5, 10)
+            layout.setSpacing(7)
+            date_label = QtWidgets.QLabel(f"Date: {visa['issue_date']}")
+            amount_label = QtWidgets.QLabel(f"type: {visa['type']}")
+            push_button = QtWidgets.QPushButton("pushit")
+            push_button.clicked.connect(lambda checked, b=push_button, id=visa["visa_id"]: self.test(b, id))
 
+            layout.addWidget(date_label)
+            layout.addWidget(amount_label)
+            layout.addWidget(push_button)
+
+            layout.setStretch(0, 1)
+            layout.setStretch(1, 1)
+
+            container = QtWidgets.QWidget()
+            container.setLayout(layout)
+            self.pass_scroll_content.addWidget(container)
+    
     def test(self, but, id):
         but.setText("newtextt")
         print(id)
-            

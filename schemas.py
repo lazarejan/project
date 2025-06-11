@@ -7,7 +7,7 @@ import re
 class UserRegister(BaseModel):
     pers_id: str
     username: str
-    email: EmailStr
+    # email: EmailStr
     password: str
     r_password: str
 

@@ -42,7 +42,7 @@ def user_data(doc_type: str, db: Session = Depends(get_session), curr_user: Sess
         doc = db.query(BorderStamp).filter(BorderStamp.personal_id == curr_user.personal_id).all()
     else:
         raise HTTPException(status_code=400, detail="Invalid document type")
-
+    print(doc, Visa.personal_id, curr_user.personal_id)
     if not doc:
         raise HTTPException(status_code=404, detail=f"{doc_type} not found for the user")
     
