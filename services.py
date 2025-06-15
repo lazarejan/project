@@ -12,6 +12,7 @@ class Home_window(QWidget):
         self.setupUi(self)
 
     def fetch(self):
+        # essential !!!!
         try:
             print(AppState.token)
             headers = {
@@ -43,6 +44,7 @@ class Home_window(QWidget):
             return res
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Error connecting to server:\n{str(e)}")
+        # !!!!!
 
     # Generated UI code
     def setupUi(self, Form):
@@ -332,19 +334,12 @@ class Home_window(QWidget):
         self.label_42.setText(_translate("Form", "TextLabel"))
         self.pushButton_6.setText(_translate("Form", "PushButton"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3), _translate("Form", "Car licese"))
-        
-        data = [
-            {"date": "2024-01-12", "amount": "50 GEL", "reason": "Speeding"},
-            {"date": "2024-02-10", "amount": "30 GEL", "reason": "Parking"},
-            {"date": "2024-03-01", "amount": "70 GEL", "reason": "Red light"},
-        ]
+
         print(bool(self.data["fine_list"]), self.data["fine_list"])
         if self.data["fine_list"]:
             self.fine_get(self.data["fine_list"])
         if self.data["visa_list"]:
             self.visa_get(self.data["visa_list"])
-        # if self.data["borderstamp_list"]:
-        #     pass
     
     def fine_get(self, fines_data):
         for i in reversed(range(self.id_scroll_content.count())):
