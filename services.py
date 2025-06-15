@@ -5,7 +5,7 @@ import requests
 from authentication import AppState
 
 class Home_window(QWidget):
-    def __init__(self):
+    def __init__(self, epass=None):
         super().__init__()
         self.setWindowTitle("Home")
         self.data = self.fetch()
