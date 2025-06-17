@@ -1,10 +1,11 @@
 from PyQt5.QtWidgets import QApplication, QMainWindow, QStackedWidget, QLineEdit ,QMessageBox
 import sys
+from api.login import logout
 from services import Home_window
 import uvicorn
 from api.main_api import app
 import threading
-from blackhole import Welcome_page, Login_page, Register_page, AppState
+from blackhole import Main_page, Welcome_page, Login_page, Register_page, AppState
 import requests
 
 def start_api():
@@ -51,7 +52,7 @@ class Epass(QMainWindow):
         
     def go_home(self):
         if not self.Main:
-            self.Main = Home_window()
+            self.Main = Main(self)
             self.stack.addWidget(self.Main)
         self.stack.setCurrentWidget(self.Main)
     
@@ -125,6 +126,28 @@ class Register(Register_page):
                 print("registered")
             else:
                 QMessageBox.warning(self, "Failed", f"register failed:\n{response.json()["detail"]}")
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Error connecting to server:\n{str(e)}")
+
+class Main(Main_page):
+    def __init__(self, epass):
+        super().__init__()
+        self.logout_btn.clicked.connect(lambda: self.logout__(epass))
+    
+    def logout__(self, epass):
+        try:
+            headers = {
+                "Authorization": f"Bearer {AppState.token}"
+            }
+
+            logout = requests.get("http://127.0.0.1:8000/data_fetch", headers=headers)
+            
+            if logout.status_code == 200:
+                AppState.token = None
+                epass.go_welcome()
+                print("loged_out")
+            else:
+                QMessageBox.critical(self, "Failed", f"Log out failed:\n{logout.json()["detail"]}")
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Error connecting to server:\n{str(e)}")
 
