@@ -159,9 +159,9 @@ class Login_page(QWidget):
         self.frameLayout.addWidget(self.login_header)
         spacerItem = QtWidgets.QSpacerItem(20, 60, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Maximum)
         self.frameLayout.addItem(spacerItem)
-        self.personal_num_inp = QtWidgets.QLineEdit(self.loginFrame)
-        self.personal_num_inp.setObjectName("personal_num_inp")
-        self.frameLayout.addWidget(self.personal_num_inp)
+        self.username_inp = QtWidgets.QLineEdit(self.loginFrame)
+        self.username_inp.setObjectName("username_inp")
+        self.frameLayout.addWidget(self.username_inp)
         self.horizontalLayout_2 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
         self.password_inp = QtWidgets.QLineEdit(self.loginFrame)
@@ -212,7 +212,7 @@ class Login_page(QWidget):
     def retranslateUi(self, Loginpage):
         _translate = QtCore.QCoreApplication.translate
         self.login_header.setText(_translate("Loginpage", "Login"))
-        self.personal_num_inp.setPlaceholderText(_translate("Loginpage", "Personal number"))
+        self.username_inp.setPlaceholderText(_translate("Loginpage", "Username"))
         self.password_inp.setPlaceholderText(_translate("Loginpage", "Password"))
         self.echo_toggle_btn.setText(_translate("Loginpage", "👁️"))
         self.back_btn.setText(_translate("Loginpage", "Back"))

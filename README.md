@@ -51,3 +51,36 @@ Once setup is complete and the virtual environment is activated, start the FastA
 uvicorn api.main_api:app --reload
 
 ```
+---
+
+## ▶️ How to Use
+
+### 1️⃣ Run the database initializer
+```bash
+python database.py
+
+```
+### 2️⃣ Generate fake citizen data
+```bash
+python generator.py
+
+```
+
+### 3️⃣ Launch the application UI
+```bash
+python main.py
+
+```
+
+🧑‍💼 You can now:
+
+Create your account
+ 
+ Open the database file (usually mydatabase.db) using SQLiteViewer
+
+ View existing citizens and their credentials
+ 
+ register using any of the citizen
+
+📂 Login using username and password you enter when registered
+

@@ -71,14 +71,14 @@ class Login(Login_page):
     def __init__(self, epass):
         super().__init__()
         self.back_btn.clicked.connect(epass.go_welcome)
-        self.login_btn.clicked.connect(lambda: self.login__(self.personal_num_inp.text(), self.password_inp.text(), epass))
+        self.login_btn.clicked.connect(lambda: self.login__(self.username_inp.text(), self.password_inp.text(), epass))
         self.echo_toggle_btn.setCheckable(True)
         self.echo_toggle_btn.clicked.connect(self.echo_toggle__)
     
-    def login__(self, pers_num, passwd, epass):
+    def login__(self, username, passwd, epass):
         try:
             data= {
-                "username": pers_num,
+                "username": username,
                 "password": passwd,
             }
 
