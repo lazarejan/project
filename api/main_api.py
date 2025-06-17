@@ -14,15 +14,15 @@ def check_fine_expire():
     exp_fines = db.query(Fine).filter(Fine.expiration_date < today, Fine.status == "გადასახდელი").all()
 
     for docs in (ID_card, Passport, Car_license, Visa):
-        exp_doc = db.query(docs).filter(
+        exp_docs = db.query(docs).filter(
         docs.expiration_date < today,
         docs.status == "აქტიური"
         ).all()
-        for doc in exp_doc:
+        for doc in exp_docs:
             doc.status = "გაუქმებული"
 
     for fine in exp_fines:
-        fine.status = "expired"
+        fine.status = "ვადაგასული"
         fine.amount += 50
         fine.message += "!!! jarimas vada gauvida oqroo (+50 GEL) !!!"
 

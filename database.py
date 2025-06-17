@@ -40,7 +40,6 @@ class Account(base):
     __tablename__ = "account"
     
     username = Column(String, unique=True, nullable=False, primary_key=True)
-    email = Column(String, nullable=True, unique=True)
     password = Column(String, nullable=False)
     personal_id = Column(String(11), ForeignKey("citizens.personal_id"), nullable=False)
 
@@ -89,7 +88,7 @@ class Car(base):
     car_id = Column(String, primary_key=True, nullable=False)
     brand = Column(String, nullable=False)
     model = Column(String, nullable=False)
-    owner = Column(String(9), ForeignKey("citizens.personal_id"), nullable=False)
+    owner = Column(String(11), ForeignKey("citizens.personal_id"), nullable=False)
 
 class Fine(base):
     __tablename__ = "fine"

@@ -1,13 +1,12 @@
 from typing import Optional
 from fastapi import HTTPException
-from pydantic import BaseModel, EmailStr, validator, model_validator
+from pydantic import BaseModel, validator, model_validator
 from datetime import date
 import re
 
 class UserRegister(BaseModel):
     pers_id: str
     username: str
-    # email: EmailStr
     password: str
     r_password: str
 

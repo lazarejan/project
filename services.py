@@ -1,8 +1,9 @@
-from PyQt5.QtWidgets import (QApplication, QSizePolicy, QMainWindow, QStackedWidget, QWidget, QPushButton, QVBoxLayout, 
-                             QLabel, QLineEdit, QFormLayout, QHBoxLayout, QMessageBox, QDialog, QGridLayout)
+from PyQt5.QtWidgets import QWidget, QMessageBox
 from PyQt5 import QtCore, QtWidgets
 import requests
-from authentication import AppState
+from blackhole import AppState
+
+# this code is for development process
 
 class Home_window(QWidget):
     def __init__(self, epass=None):
@@ -14,7 +15,6 @@ class Home_window(QWidget):
     def fetch(self):
         # essential !!!!
         try:
-            print(AppState.token)
             headers = {
                 "Authorization": f"Bearer {AppState.token}"
             }
@@ -40,7 +40,6 @@ class Home_window(QWidget):
                 else:
                     QMessageBox.warning(self, "Failed", f"data fetch failed:\n{doc.json()}")
                     return
-            print("done")
             return res
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Error connecting to server:\n{str(e)}")
@@ -335,7 +334,6 @@ class Home_window(QWidget):
         self.pushButton_6.setText(_translate("Form", "PushButton"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3), _translate("Form", "Car licese"))
 
-        print(bool(self.data["fine_list"]), self.data["fine_list"])
         if self.data["fine_list"]:
             self.fine_get(self.data["fine_list"])
         if self.data["visa_list"]:
@@ -395,4 +393,3 @@ class Home_window(QWidget):
     
     def test(self, but, id):
         but.setText("newtextt")
-        print(id)
