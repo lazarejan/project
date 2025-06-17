@@ -84,3 +84,7 @@ Create your account
 
 📂 Login using username and password you enter when registered
 
+
+---
+
+💡 **Note:** if you want to see how all the api works you need to use an api platform (e.g. postman) and test it. from[`postman_api_testing/`](https://github.com/lazarejan/project/tree/main/postman_api_testing) you can import those files in postman and you are good to go
