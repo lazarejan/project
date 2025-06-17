@@ -1,7 +1,5 @@
 # 🚀 Epass: Digital Personal Wallet
-
-A brief, catchy description of what your application does.  
-For example:  
+ 
 **A digital ID/passport manager with fines, visas, and border stamp features built using PyQt5 and FastAPI.**
 
 ---
