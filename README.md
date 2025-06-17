@@ -24,9 +24,30 @@
 
 ## 🧩 Installation
 
-### 1. Clone the repo
+### 🧬 Clone the repo and set up env
 ```bash
-
 git clone git@github.com:lazarejan/project.git
 cd project
 setup.bat
+
+```
+
+### 🔄 Alternative: Download the ZIP
+
+If you don't have Git installed:
+
+1. Go to the repository: https://github.com/lazarejan/project
+2. Click **"Code" > "Download ZIP"**
+3. Extract the ZIP and open the folder
+4. Double-click or run `setup.bat`
+
+---
+
+### ▶️ Run Backend API
+
+Once setup is complete and the virtual environment is activated, start the FastAPI backend server by running:
+
+```bash
+uvicorn api.main_api:app --reload
+
+```
