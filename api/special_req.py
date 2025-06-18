@@ -17,8 +17,21 @@ def post_fine(fine_info: schemas.FinePostBase, db: Session = Depends(get_session
     fine_info = fine_info.dict()
     fine_info["issue_date"] = date.today()
     fine_info["expiration_date"] = date.today() + timedelta(days=fine_info["duration_days"])
-
     del fine_info["duration_days"]
+    citizen = db.query(Citizens).filter(Citizens.personal_id == fine_info["personal_id"]).first()
+    
+    if not citizen:
+        raise HTTPException(status_code=404, detail="Personal ID does not exists")
+    
+    if fine_info["type"] == "საგზაო":
+        car = db.query(Car).filter(Car.car_id == fine_info["car_id"], Car.owner == fine_info["personal_id"]).first()
+        if not fine_info["car_id"]:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Information do not match")
+        if not car:
+            raise HTTPException(status_code=404, detail="Person does not own car with the number")
+    elif fine_info["car_id"]:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Information do not match")
+          
 
     add_fine = Fine(**fine_info)
     db.add(add_fine)

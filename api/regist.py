@@ -23,7 +23,7 @@ def register(user_info: schemas.UserRegister, db: Session = Depends(get_session)
         raise HTTPException(status_code=400, detail="Username already taken")
     
     if not citizen:
-        raise HTTPException(status_code=400, detail="Citizen not found")
+        raise HTTPException(status_code=404, detail="Personal ID does not exists")
     
     user_info.password = hash.encrypt(user_info.password)
 

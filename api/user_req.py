@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from database import Citizens, get_session, Passport, ID_card, Car_license, Fine, Visa, BorderStamp
+from database import Car, Citizens, get_session, Passport, ID_card, Car_license, Fine, Visa, BorderStamp
 import schemas
 from . import oauth_
 from typing import Union
@@ -26,7 +26,8 @@ def user(db: Session = Depends(get_session), curr_user: Session = Depends(oauth_
                                                 schemas.CarLicenseGetBase, 
                                                 list[schemas.FineGetBase], 
                                                 list[schemas.VisaGetBase], 
-                                                list[schemas.BorderStampGetBase]])
+                                                list[schemas.BorderStampGetBase],
+                                                list[schemas.CarBase]])
 def user_data(doc_type: str, db: Session = Depends(get_session), curr_user: Session = Depends(oauth_.get_current_user)):
     if doc_type == "passport":
         doc = db.query(Passport).filter(Passport.personal_id == curr_user.personal_id).first()
@@ -40,6 +41,8 @@ def user_data(doc_type: str, db: Session = Depends(get_session), curr_user: Sess
         doc = db.query(Visa).filter(Visa.personal_id == curr_user.personal_id).all()
     elif doc_type == "borderstamp":
         doc = db.query(BorderStamp).filter(BorderStamp.personal_id == curr_user.personal_id).all()
+    elif doc_type == "car":
+        doc = db.query(Car).filter(Car.owner == curr_user.personal_id).all()
     else:
         raise HTTPException(status_code=400, detail="Invalid document type")
     

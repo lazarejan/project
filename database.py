@@ -97,6 +97,7 @@ class Fine(base):
     personal_id = Column(String(11), ForeignKey("citizens.personal_id"), nullable=False)
     type = Column(String, nullable=False)
     message = Column(String, nullable=False)
+    car_id = Column(String, ForeignKey("car.car_id"), nullable=True)
     issue_date = Column(DATE, nullable=False)
     expiration_date = Column(DATE, nullable=False)
     amount = Column(Integer, nullable=False)

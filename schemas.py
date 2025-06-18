@@ -88,6 +88,7 @@ class FineGetBase(BaseModel):
     personal_id: str
     type: str
     message: str
+    car_id: Optional[str] = None
     issue_date: date
     expiration_date: date
     amount: int
@@ -97,6 +98,7 @@ class FinePostBase(BaseModel):
     personal_id: str
     type: str
     message: str
+    car_id: str = None
     amount: int
     duration_days: int
 
@@ -132,6 +134,7 @@ class BorderStampPostBase(BaseModel):
 class UserInfoGetBase(BaseModel):
     first_name: str
     last_name: str
+    personal_id: str
     birth_date: date
     sex: str
     address: str
