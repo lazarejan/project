@@ -56,12 +56,24 @@ IF %ERRORLEVEL% NEQ 0 (
     exit /b
 )
 
+echo Run the database  initializer...
+echo Creating mydatabase.db ...
+c:/Users/User/Desktop/lazare/project/project/venv/Scripts/python.exe database.py
+echo Generate data for database...
+c:/Users/User/Desktop/lazare/project/project/venv/Scripts/python.exe generator.py
+
+IF %ERRORLEVEL% NEQ 0 (
+    echo ❌ Failed to run python files.
+    pause
+    exit /b
+)
+
 echo.
 echo ✅ Setup complete!
 echo --------------------------------------------
-echo To activate the virtual environment later:
+echo To activate the virtual environment later (by default it is activated):
 echo     venv\Scripts\activate
 echo To run the app:
-echo     python main_ui.py
+echo     startup.bat
 echo --------------------------------------------
 pause

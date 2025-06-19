@@ -43,34 +43,15 @@ If you don't have Git installed:
 
 ---
 
-### ▶️ Run Backend API
-
-Once setup is complete and the virtual environment is activated, start the FastAPI backend server by running:
-
-```bash
-uvicorn api.main_api:app --reload
-
-```
----
-
 ## ▶️ How to Use
 
-### 1️⃣ Run the database initializer
-```bash
-python database.py
+### 1️⃣ Run the setup once you download it
 
-```
-### 2️⃣ Generate fake citizen data
-```bash
-python generator.py
+run(double click) `setup.bat` file
 
-```
+### 2️⃣ Use startup for starting program
 
-### 3️⃣ Launch the application UI
-```bash
-python main.py
-
-```
+run(double click) `startup.bat` file
 
 🧑‍💼 You can now:
 
