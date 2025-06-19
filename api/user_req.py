@@ -103,7 +103,6 @@ def search_data(doc_type: str, db: Session = Depends(get_session), search: str =
 
 @router.put("/update_fine_status/{doc_id}", response_model=schemas.FineGetBase)
 def upd_fine(doc_id: int, db: Session = Depends(get_session), curr_user: Session = Depends(oauth_.get_current_user)):
-    
     fine_query = db.query(Fine).filter(Fine.fine_id == doc_id)
     fine = fine_query.first()
 

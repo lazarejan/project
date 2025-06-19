@@ -1,17 +1,14 @@
-from PyQt5.QtWidgets import QApplication, QMainWindow, QStackedWidget, QLineEdit ,QMessageBox, QLabel
+from PyQt5.QtWidgets import QApplication, QMainWindow, QStackedWidget, QLineEdit ,QMessageBox
 import sys
 from PyQt5 import QtWidgets
-from PyQt5.QtGui import QKeySequence
 import uvicorn
 from api.main_api import app
 import threading
 from blackhole import Main_page, Welcome_page, Login_page, Register_page, AppState
 import requests
-from PyQt5.QtCore import Qt
 
 def start_api():
     uvicorn.run(app, host="127.0.0.1", port=8000)
-
 
 class Epass(QMainWindow):
     """
@@ -93,7 +90,6 @@ class Login(Login_page):
             if response.status_code == 200:
                 AppState.token = response.json()["token"]
                 epass.go_home()
-                print("loged in")
             else:
                 QMessageBox.warning(self, "Failed", f"Login failed:\nusername or password is incorrect")
         except Exception as e:
@@ -128,7 +124,6 @@ class Register(Register_page):
             if response.status_code == 201:
                 AppState.token = response.json()["token"]
                 epass.go_home()
-                print("registered")
             else:
                 QMessageBox.warning(self, "Failed", f"register failed:\n{response.json()["detail"]}")
         except Exception as e:
@@ -140,7 +135,6 @@ class Main(Main_page):
         self.logout_btn.clicked.connect(lambda: self.logout__(epass))
         self.data = self.data_fetch__()
         self.updateUi__()
-        print(self.data)
 
     def updateUi__(self):
         user = self.data["user"]
@@ -154,20 +148,24 @@ class Main(Main_page):
         self.pass_lname.setText(f"გვარი: {user["last_name"]}")
 
         self.id_cit_sex_bdate.setText(f"მოქ: GEO   სქესი: {user["sex"]}    დაბ. თარიღი: {user["birth_date"]}")
-        self.car_cit_sex_bdate.setText(f"მოქ: GEO   სქესი: {user["sex"]}    დაბ. თარიღი: {user["birth_date"]}")
         self.pass_cit_sex_bdate.setText(f"მოქ: GEO   სქესი: {user["sex"]}    დაბ. თარიღი: {user["birth_date"]}")
 
         self.id_personal_num.setText(f"პირადი ნომ: {user["personal_id"]}")
-        self.car_personal_num.setText(f"პირადი ნომ: {user["personal_id"]}")
         self.pass_personal_num.setText(f"პირადი ნომ: {user["personal_id"]}")
 
         self.id_nomeri.setText(f"ბარათის №: {user["id_card"]["card_id"]}")
-        self.car_license_nomeri.setText(f"მოწმობის №: {user["car_license"]["car_license_id"]}")
         self.passport_nomeri.setText(f"პასპორტის №: {user["passport"]["passport_id"]}")
 
         self.id_date.setText(f"გაც. თარიღი: {user["id_card"]["issue_date"]}    მოქ. ვადა: {user["id_card"]["expiration_date"]}")
-        self.car_date.setText(f"გაც. თარიღი: {user["car_license"]["issue_date"]}    მოქ. ვადა: {user["car_license"]["expiration_date"]}")
         self.pass_date.setText(f"გაც. თარიღი: {user["passport"]["issue_date"]}    მოქ. ვადა: {user["passport"]["expiration_date"]}")
+        
+        if user["car_license"]:
+            self.car_date.setText(f"გაც. თარიღი: {user["car_license"]["issue_date"]}    მოქ. ვადა: {user["car_license"]["expiration_date"]}")
+            self.car_cit_sex_bdate.setText(f"მოქ: GEO   სქესი: {user["sex"]}    დაბ. თარიღი: {user["birth_date"]}")
+            self.car_personal_num.setText(f"პირადი ნომ: {user["personal_id"]}")
+            self.car_license_nomeri.setText(f"მოწმობის №: {user["car_license"]["car_license_id"]}")
+        else:
+            self.tab.removeTab(2)
 
         if self.data["fine_list"]:
             self.update_fine(self.data["fine_list"])
@@ -186,7 +184,7 @@ class Main(Main_page):
             widget = self.car_content.itemAt(i).widget()
             if widget is not None:
                 widget.deleteLater()
-        print(data)
+
         for car in data:
             layout = QtWidgets.QHBoxLayout()
             layout.setContentsMargins(5, 10, 5, 10)
@@ -305,7 +303,7 @@ class Main(Main_page):
             car = requests.get("http://127.0.0.1:8000/data_fetch/car", headers=headers)
             
             res = {}
-            print("executed")
+
             if user.status_code == 200:
                 res["user"] = user.json()
             else:
@@ -329,7 +327,7 @@ class Main(Main_page):
             headers = {
                 "Authorization": f"Bearer {AppState.token}"
             }
-            print(btn, type(btn))
+
             response = requests.put(f"http://127.0.0.1:8000/data_fetch/update_fine_status/{btn_id}", headers=headers)
             if response.status_code == 200:
                 btn.setText("გადახდილია")

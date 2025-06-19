@@ -668,8 +668,8 @@ class Main_page(QWidget):
         self.mainpage_grid.addWidget(self.logout_btn)
 
         self.retranslateUi(mainPage)
-        self.tab.setCurrentIndex(1)
-        self.passport_inner_tab.setCurrentIndex(1)
+        self.tab.setCurrentIndex(0)
+        self.passport_inner_tab.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(mainPage)
 
     def retranslateUi(self, mainPage):

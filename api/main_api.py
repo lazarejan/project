@@ -26,8 +26,6 @@ def check_fine_expire():
         fine.amount += 50
         fine.message += "!!! jarimas vada gauvida oqroo (+50 GEL) !!!"
 
-
-    print("Expiration check")
     db.commit()
     db.close()
 

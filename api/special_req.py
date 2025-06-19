@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, status, HTTPException
 from sqlalchemy.orm import Session
-from database import Car, Citizens, Passport, Visa, get_session, Fine, BorderStamp
+from database import Car, Car_license, Citizens, Passport, Visa, get_session, Fine, BorderStamp
 from datetime import date, timedelta
 from . import oauth_
 import schemas
@@ -59,7 +59,11 @@ def post_borderstamp(borderstamp_info: schemas.BorderStampPostBase, db: Session 
     borderstamp_info = borderstamp_info.dict()
     borderstamp_info["timestamp"] = date.today()
     borderstamp_info["passport_id"] = db.query(Passport).join(Citizens, Citizens.personal_id == Passport.personal_id).group_by(Passport.personal_id).first().passport_id
+    citizen = db.query(Citizens).filter(Citizens.personal_id == borderstamp_info["personal_id"])
 
+    if not citizen:
+        raise HTTPException(status_code=404, detail="Personal ID does not exists")
+    
     add_borderstamp = BorderStamp(**borderstamp_info)
     db.add(add_borderstamp)
     db.commit()
@@ -70,9 +74,13 @@ def post_borderstamp(borderstamp_info: schemas.BorderStampPostBase, db: Session 
 def post_car(car_info: schemas.CarBase, db: Session = Depends(get_session), curr_user: Session = Depends(oauth_.get_current_user)):
     car_info = car_info.dict()
     is_car_id = db.query(Car).filter(Car.car_id == car_info["car_id"]).first()
+    citizen = db.query(Citizens).filter(Citizens.personal_id == car_info["personal_id"])
 
+    if not citizen:
+        raise HTTPException(status_code=404, detail="Personal ID does not exists")
+    
     if is_car_id:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="car id already exists")    
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Car id already exists")
 
     add_car = Car(**car_info)
     db.add(add_car)
