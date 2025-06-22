@@ -18,7 +18,8 @@ def login(user_info: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail= "user not found")
     
     access_token = oauth_.create_access_token({"username": user_info.username})
-    return {"token": access_token}
+    is_special = db.query(Account.is_special).filter(Account.username == user_info.username).first()
+    return {"token": access_token, "is_special": is_special[0]}
 
 
 @router.post("/logout")

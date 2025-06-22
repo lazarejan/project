@@ -4,7 +4,7 @@ from PyQt5 import QtWidgets
 import uvicorn
 from api.main_api import app
 import threading
-from blackhole import Main_page, Welcome_page, Login_page, Register_page, AppState
+from blackhole import Main_page, Welcome_page, Login_page, Register_page, AppState, Border_guard_page, Police_page, Ambassador_page
 import requests
 
 def start_api():
@@ -30,6 +30,9 @@ class Epass(QMainWindow):
         self.Login = None
         self.Register = None
         self.Main = None
+        self.Border_guard = None
+        self.Police = None
+        self.Ambassador = None
 
         self.go_welcome()
 
@@ -54,9 +57,34 @@ class Epass(QMainWindow):
             self.stack.addWidget(self.Main)
         self.stack.setCurrentWidget(self.Main)
     
+    def go_border_guard(self):
+        if not self.Border_guard:
+            self.Border_guard = Border_guard(self)
+            self.stack.addWidget(self.Border_guard)
+        self.stack.setCurrentWidget(self.Border_guard)
+
+    def go_police(self):
+        if not self.Police:
+            self.Police = Police(self)
+            self.stack.addWidget(self.Police)
+        self.stack.setCurrentWidget(self.Police)
+    
+    def go_ambassador(self):
+        if not self.Ambassador:
+            self.Ambassador = Ambassador(self)
+            self.stack.addWidget(self.Ambassador)
+        self.stack.setCurrentWidget(self.Ambassador)
+
+
     def log_out(self):
         self.Main = None
+        self.Police = None
+        self.Border_guard = None
+        self.Ambassador = None
         self.stack.removeWidget(self.Main)
+        self.stack.removeWidget(self.Police)
+        self.stack.removeWidget(self.Border_guard)
+        self.stack.removeWidget(self.Ambassador)
     
 class Welcome(Welcome_page):
     """
@@ -89,7 +117,15 @@ class Login(Login_page):
 
             if response.status_code == 200:
                 AppState.token = response.json()["token"]
-                epass.go_home()
+                is_special = response.json()["is_special"]
+                if is_special == "border_guard":
+                    epass.go_border_guard()
+                elif is_special == "police":
+                    epass.go_police()
+                elif is_special == "ambassador":
+                    epass.go_ambassador()
+                else:
+                    epass.go_home()
             else:
                 QMessageBox.warning(self, "Failed", f"Login failed:\nusername or password is incorrect")
         except Exception as e:
@@ -129,10 +165,28 @@ class Register(Register_page):
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Error connecting to server:\n{str(e)}")
 
-class Main(Main_page):
+class Log_out():
+    def logout(self, epass):
+        try:
+            headers = {
+                "Authorization": f"Bearer {AppState.token}"
+            }
+
+            logout = requests.post("http://127.0.0.1:8000/logout", headers=headers)
+            
+            if logout.status_code == 200:
+                AppState.token = None
+                epass.go_welcome()
+                epass.log_out()
+            else:
+                QMessageBox.critical(self, "Failed", f"Log out failed:\n{logout.json()["detail"]}")
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Error connecting to server:\n{str(e)}")
+
+class Main(Main_page, Log_out):
     def __init__(self, epass):
         super().__init__()
-        self.logout_btn.clicked.connect(lambda: self.logout__(epass))
+        self.logout_btn.clicked.connect(lambda: self.logout(epass))
         self.data = self.data_fetch__()
         self.updateUi__()
 
@@ -337,26 +391,109 @@ class Main(Main_page):
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Error connecting to server:\n{str(e)}")
 
-    def logout__(self, epass):
+class Border_guard(Border_guard_page, Log_out):
+    def __init__(self, epass):
+        super().__init__()
+        self.border_guard_submit_btn.clicked.connect(self.submit__)
+        self.border_guard_log_out_btn.clicked.connect(lambda: self.logout(epass))
+
+    def submit__(self):
         try:
+
             headers = {
-                "Authorization": f"Bearer {AppState.token}"
+                    "Authorization": f"Bearer {AppState.token}"
             }
 
-            logout = requests.post("http://127.0.0.1:8000/logout", headers=headers)
-            
-            if logout.status_code == 200:
-                AppState.token = None
-                epass.go_welcome()
-                epass.log_out()
+            data = {
+                "personal_id": self.border_guard_id_inp.text(),
+                "location": self.border_guard_loc_inp.text(),
+                "direction": self.border_group_dir_com.currentText()
+            }
+
+            response = requests.post("http://127.0.0.1:8000/borderstamp", headers=headers, json=data)
+
+            if response.status_code == 201:
+                print("borderstamp added successfully")
             else:
-                QMessageBox.critical(self, "Failed", f"Log out failed:\n{logout.json()["detail"]}")
+                QMessageBox.critical(self, "Failed", f"border stampt update failed:\n{response.json()["detail"]}")
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Error connecting to server:\n{str(e)}")
+
+class Police(Police_page, Log_out):
+    def __init__(self, epass):
+        super().__init__()
+        self.police_submit_btn.clicked.connect(self.submit__)
+        self.police_logout.clicked.connect(lambda: self.logout(epass))
+    
+    def submit__(self):
+        try:
+            headers = {
+                    "Authorization": f"Bearer {AppState.token}"
+            }
+
+            data = {
+                "personal_id": self.police_id_inp.text(),
+                "type": self.police_type_com.currentText(),
+                "car_id": self.police_car_inp.text(),
+                "message": self.police_msg_inp.text(),
+                "amount": int(self.police_amount_inp.text()),
+                "duration_days": int(self.police_dur_inp.text())
+            }
+
+            response = requests.post("http://127.0.0.1:8000/fine", headers=headers, json=data)
+
+            if response.status_code == 201:
+                print("fine added successfully")
+            else:
+                QMessageBox.critical(self, "Failed", f"fine update failed:\n{response.json()["detail"]}")
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Error connecting to server:\n{str(e)}")
+
+class Ambassador(Ambassador_page, Log_out):
+    def __init__(self, epass):
+        super().__init__()
+        self.amb_submit_btn.clicked.connect(self.submit__)
+        self.amb_log_out_btn.clicked.connect(lambda: self.logout(epass))
+        self.police_search_bar_3.returnPressed.connect
+    
+    def update_display(self):
+        try:
+            response = requests.get("http://127.0.0.1:8000/data_fetch/search", params={"search": self.police_search_bar_3.text()})
+
+            if response.status_code == 200:
+                return response.json()["result"]
+            elif response.status_code == 404:
+                return []
+            else:
+                QMessageBox.critical(self, "Failed", f"search failed:\n{response.json()["detail"]}")
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Error connecting to server:\n{str(e)}")
+    
+    def submit__(self):
+        try:
+            headers = {
+                    "Authorization": f"Bearer {AppState.token}"
+            }
+
+            data = {
+                "personal_id": self.amb_id_inp.text(),
+                "country": self.amb_country_inp.text(),
+                "type": self.police_type_com.currentText(),
+                "duration_years": int(self.amb_dur_inp.text())
+            }
+
+            response = requests.post("http://127.0.0.1:8000/visa", headers=headers, json=data)
+
+            if response.status_code == 201:
+                print("visa added successfully")
+            else:
+                QMessageBox.critical(self, "Failed", f"visa update failed:\n{response.json()["detail"]}")
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Error connecting to server:\n{str(e)}")
 
 if __name__ == "__main__":
-    api_thread = threading.Thread(target=start_api, daemon=True)
-    api_thread.start()
+    # api_thread = threading.Thread(target=start_api, daemon=True)
+    # api_thread.start()
 
     application = QApplication(sys.argv)
     window = Epass()

@@ -1,6 +1,6 @@
-from typing import Optional
+from typing import Optional, List
 from fastapi import HTTPException
-from pydantic import BaseModel, validator, model_validator
+from pydantic import BaseModel, validator, model_validator, field_validator
 from datetime import date
 import re
 
@@ -98,9 +98,13 @@ class FinePostBase(BaseModel):
     personal_id: str
     type: str
     message: str
-    car_id: str = None
+    car_id: Optional[str] = None
     amount: int
     duration_days: int
+
+    @validator('car_id')
+    def blank_str_to_none(cls, v):
+        return None if v == '' else v
 
 class VisaGetBase(BaseModel):
     visa_id: int
@@ -150,6 +154,18 @@ class CarBase(BaseModel):
     brand: str
     model: str
     owner: str
-        
+
+class PersonBase(BaseModel):
+    first_name: str
+    last_name: str
+    personal_id: str
+    birth_date: date
+    address: str
+    sex: str
+
+class SearchBase(BaseModel):
+    result: List[PersonBase]
+
 class TokenBase(BaseModel):
     token: str
+    is_special: Optional[str] = None

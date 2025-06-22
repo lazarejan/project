@@ -1,9 +1,3 @@
 __pycache__
 mydatabase.db
-.setup.sh.swn
-.setup.sh.swo
-.setup.sh.swp
-.startup.sh.swo
-.startup.sh.swp
-.setup..swp
-venv/
+myvenv/

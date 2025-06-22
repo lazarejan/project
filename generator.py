@@ -1,9 +1,10 @@
-from database import Citizens, ID_card, SessionLocal, Passport, Car_license, Car
+from database import Citizens, ID_card, SessionLocal, Passport, Car_license, Car, Account
 from sqlalchemy.orm import Session
 import datetime
 import random
 import string
 from faker import Faker
+from hash import encrypt
 
 def get_session(func):
     def wrapper(*args, **kwargs):
@@ -39,7 +40,6 @@ def post_pass_id_carlicence(pers_id, card_id, pass_id, car_id, db: Session):
     
     db.add(new_id_card)
     db.add(new_passport)
-    
 
 @get_session
 def post_car(pers_id, cars_num, db: Session):
@@ -51,7 +51,15 @@ def post_car(pers_id, cars_num, db: Session):
         new_cars = Car(car_id=car_id, brand=brand, model=random.choice(model), owner=pers_id)
         
         db.add(new_cars)
-    
+
+@get_session
+def post_special_users(db: Session):
+    for user in ("police", "ambassador", "border_guard"):
+        special_user = Account(username=f"{user}{random.randint(0, 9999999)}", password=encrypt("Pass$1234"), personal_id="00000000000", is_special=user)
+
+        db.add(special_user)
+        
+
 fake = Faker("ka_GE")
 
 for _ in range(50):
@@ -72,3 +80,5 @@ for _ in range(50):
             address=person["address"], sex=person["sex"], birth_date=person["birth_date"])
     
     post_pass_id_carlicence(pers_id=person["personal_id"], pass_id=person["passport_id"], card_id=person["card_id"], car_id=person["car_license_id"])
+
+post_special_users()

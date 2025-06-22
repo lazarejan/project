@@ -1,7 +1,8 @@
 from sqlalchemy import CheckConstraint, ForeignKey, create_engine
 from sqlalchemy.orm import sessionmaker, relationship
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, DATE, Integer, String
+from sqlalchemy import Column, DATE, Integer, String, Boolean
+from sqlalchemy.sql import text
 
 URL = "sqlite:///mydatabase.db"
 
@@ -40,8 +41,13 @@ class Account(base):
     __tablename__ = "account"
     
     username = Column(String, unique=True, nullable=False, primary_key=True)
-    password = Column(String, nullable=False)
+    password = Column(String(20), nullable=False)
     personal_id = Column(String(11), ForeignKey("citizens.personal_id"), nullable=False)
+    is_special = Column(String(15), nullable=True)
+
+    __table_args__ = (   
+        CheckConstraint("is_special in ('police', 'ambassador', 'border_guard')", name="check_special"),
+    )
 
 class ID_card(base):
     __tablename__ = "id_card"
