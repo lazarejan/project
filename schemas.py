@@ -1,6 +1,6 @@
 from typing import Optional, List
 from fastapi import HTTPException
-from pydantic import BaseModel, validator, model_validator, field_validator
+from pydantic import BaseModel, validator, model_validator, field_validator, ConfigDict
 from datetime import date
 import re
 
@@ -155,16 +155,23 @@ class CarBase(BaseModel):
     model: str
     owner: str
 
+class PersonVisaBase(BaseModel):
+    country: str
+    type: str
+    status: str
+
 class PersonBase(BaseModel):
     first_name: str
     last_name: str
     personal_id: str
-    birth_date: date
     address: str
-    sex: str
+    car: Optional[List[CarBase]] = None
+    fine_count: int
+    visa: Optional[List[VisaGetBase]] = None
+    borderstamp: Optional[List[BorderStampGetBase]] = None
 
-class SearchBase(BaseModel):
-    result: List[PersonBase]
+    class Config:
+        from_attributes = True
 
 class TokenBase(BaseModel):
     token: str

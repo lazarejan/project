@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, status, HTTPException
 from sqlalchemy.orm import Session
-from database import Car, Car_license, Citizens, Passport, Visa, get_session, Fine, BorderStamp
+from database import Car, Citizens, Passport, Visa, get_session, Fine, BorderStamp
 from datetime import date, timedelta
 from . import oauth_
 import schemas

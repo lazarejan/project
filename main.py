@@ -6,6 +6,7 @@ from api.main_api import app
 import threading
 from blackhole import Main_page, Welcome_page, Login_page, Register_page, AppState, Border_guard_page, Police_page, Ambassador_page
 import requests
+from PyQt5.QtCore import Qt
 
 def start_api():
     uvicorn.run(app, host="127.0.0.1", port=8000)
@@ -19,7 +20,7 @@ class Epass(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Epass")
-        self.setGeometry(610, 270, 800, 600)
+        self.setGeometry(460, 140, 1000, 800)
 
         self.stack = QStackedWidget()
         self.setCentralWidget(self.stack)
@@ -165,7 +166,7 @@ class Register(Register_page):
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Error connecting to server:\n{str(e)}")
 
-class Log_out():
+class Universal_methods():
     def logout(self, epass):
         try:
             headers = {
@@ -182,8 +183,43 @@ class Log_out():
                 QMessageBox.critical(self, "Failed", f"Log out failed:\n{logout.json()["detail"]}")
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Error connecting to server:\n{str(e)}")
+    
+    def update_search_scroll(self, people, status):
+        for i in reversed(range(self.scroll_grid.count())):
+            widget = self.scroll_grid.itemAt(i).widget()
+            if widget is not None:
+                widget.deleteLater()
+        
+        if status == 404:
+            self.scroll_grid.addWidget(QtWidgets.QLabel("Users not found"), alignment=Qt.AlignCenter)
 
-class Main(Main_page, Log_out):
+        else:
+            for p in people:
+                row = QtWidgets.QWidget()
+                lay = QtWidgets.QHBoxLayout(row)
+                lay.setContentsMargins(11, 0, 11, 0)
+
+                # one label per column you want to show
+                lay.addWidget(QtWidgets.QLabel(f"პირადი ნომ:  {p["personal_id"]}\nსახელი/გვარი:  {p["first_name"]+" "+p["last_name"]}\nმისამართი:  {p['address']}{f"\nმანქანა(ები):  {"\n".join((f"{x["brand"]}[{x["car_id"]}]" for x in p["car"]))}" if p["car"] != [] else ""}"))
+                lay.addWidget(QtWidgets.QLabel(f"ჯარიმების რაოდენობა:  {p["fine_count"]}"))
+                lay.addWidget(QtWidgets.QLabel(f"ვიზები:  {"\n".join((f"ქვ:{x["country"]} ტპ:{x["type"]} სტს:{x["status"]}" for x in p["visa"]))}"))
+                lay.addWidget(QtWidgets.QLabel(f"სსზღ. ბეჭედი:  {"\n".join((f"ლოკ: {x["location"]} მიმ: {x["direction"]}  დრო: {x["timestamp"]}" for x in p["borderstamp"]))}"))
+                
+                self.scroll_grid.addWidget(row)
+
+
+    def search(self):
+        print(self)
+        try:
+            response = requests.get("http://127.0.0.1:8000/data_fetch/search", params={"search": self.search_bar.text()})
+            if response.status_code == 200 or response.status_code == 404:
+                return self.update_search_scroll(response.json(), response.status_code)
+            else:
+                QMessageBox.critical(self, "Failed", f"search failed:\n{response.json()["detail"]}")
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Error connecting to server:\n{str(e)}")
+
+class Main(Main_page, Universal_methods):
     def __init__(self, epass):
         super().__init__()
         self.logout_btn.clicked.connect(lambda: self.logout(epass))
@@ -193,31 +229,31 @@ class Main(Main_page, Log_out):
     def updateUi__(self):
         user = self.data["user"]
 
-        self.id_name.setText(f"სახელი: {user["first_name"]}")
-        self.car_name.setText(f"სახელი: {user["first_name"]}")
-        self.pass_name.setText(f"სახელი: {user["first_name"]}")
+        self.id_name.setText(f"სახელი:  {user["first_name"]}")
+        self.car_name.setText(f"სახელი:  {user["first_name"]}")
+        self.pass_name.setText(f"სახელი:  {user["first_name"]}")
 
-        self.id_lname.setText(f"გვარი: {user["last_name"]}")
-        self.car_lname.setText(f"გვარი: {user["last_name"]}")
-        self.pass_lname.setText(f"გვარი: {user["last_name"]}")
+        self.id_lname.setText(f"გვარი:  {user["last_name"]}")
+        self.car_lname.setText(f"გვარი:  {user["last_name"]}")
+        self.pass_lname.setText(f"გვარი:  {user["last_name"]}")
 
-        self.id_cit_sex_bdate.setText(f"მოქ: GEO   სქესი: {user["sex"]}    დაბ. თარიღი: {user["birth_date"]}")
-        self.pass_cit_sex_bdate.setText(f"მოქ: GEO   სქესი: {user["sex"]}    დაბ. თარიღი: {user["birth_date"]}")
+        self.id_cit_sex_bdate.setText(f"მოქ:  GEO   სქესი:  {user["sex"]}    დაბ. თარიღი:  {user["birth_date"]}")
+        self.pass_cit_sex_bdate.setText(f"მოქ:  GEO   სქესი:  {user["sex"]}    დაბ. თარიღი:  {user["birth_date"]}")
 
-        self.id_personal_num.setText(f"პირადი ნომ: {user["personal_id"]}")
-        self.pass_personal_num.setText(f"პირადი ნომ: {user["personal_id"]}")
+        self.id_personal_num.setText(f"პირადი ნომ:  {user["personal_id"]}")
+        self.pass_personal_num.setText(f"პირადი ნომ:  {user["personal_id"]}")
 
-        self.id_nomeri.setText(f"ბარათის №: {user["id_card"]["card_id"]}")
-        self.passport_nomeri.setText(f"პასპორტის №: {user["passport"]["passport_id"]}")
+        self.id_nomeri.setText(f"ბარათის №:  {user["id_card"]["card_id"]}")
+        self.passport_nomeri.setText(f"პასპორტის №:  {user["passport"]["passport_id"]}")
 
-        self.id_date.setText(f"გაც. თარიღი: {user["id_card"]["issue_date"]}    მოქ. ვადა: {user["id_card"]["expiration_date"]}")
-        self.pass_date.setText(f"გაც. თარიღი: {user["passport"]["issue_date"]}    მოქ. ვადა: {user["passport"]["expiration_date"]}")
+        self.id_date.setText(f"გაც. თარიღი:  {user["id_card"]["issue_date"]}    მოქ. ვადა:  {user["id_card"]["expiration_date"]}")
+        self.pass_date.setText(f"გაც. თარიღი:  {user["passport"]["issue_date"]}    მოქ. ვადა:  {user["passport"]["expiration_date"]}")
         
         if user["car_license"]:
-            self.car_date.setText(f"გაც. თარიღი: {user["car_license"]["issue_date"]}    მოქ. ვადა: {user["car_license"]["expiration_date"]}")
-            self.car_cit_sex_bdate.setText(f"მოქ: GEO   სქესი: {user["sex"]}    დაბ. თარიღი: {user["birth_date"]}")
-            self.car_personal_num.setText(f"პირადი ნომ: {user["personal_id"]}")
-            self.car_license_nomeri.setText(f"მოწმობის №: {user["car_license"]["car_license_id"]}")
+            self.car_date.setText(f"გაც. თარიღი:  {user["car_license"]["issue_date"]}    მოქ. ვადა:  {user["car_license"]["expiration_date"]}")
+            self.car_cit_sex_bdate.setText(f"მოქ:  GEO   სქესი:  {user["sex"]}    დაბ. თარიღი:  {user["birth_date"]}")
+            self.car_personal_num.setText(f"პირადი ნომ:  {user["personal_id"]}")
+            self.car_license_nomeri.setText(f"მოწმობის №:  {user["car_license"]["car_license_id"]}")
         else:
             self.tab.removeTab(2)
 
@@ -391,11 +427,13 @@ class Main(Main_page, Log_out):
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Error connecting to server:\n{str(e)}")
 
-class Border_guard(Border_guard_page, Log_out):
+class Border_guard(Border_guard_page, Universal_methods):
     def __init__(self, epass):
         super().__init__()
         self.border_guard_submit_btn.clicked.connect(self.submit__)
         self.border_guard_log_out_btn.clicked.connect(lambda: self.logout(epass))
+        self.search_bar.returnPressed.connect(self.search)
+        self.border_guard_search_btn.clicked.connect(self.search)
 
     def submit__(self):
         try:
@@ -419,12 +457,21 @@ class Border_guard(Border_guard_page, Log_out):
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Error connecting to server:\n{str(e)}")
 
-class Police(Police_page, Log_out):
+class Police(Police_page, Universal_methods):
     def __init__(self, epass):
         super().__init__()
         self.police_submit_btn.clicked.connect(self.submit__)
         self.police_logout.clicked.connect(lambda: self.logout(epass))
-    
+        self.search_bar.returnPressed.connect(self.search)
+        self.search_btn.clicked.connect(self.search)
+        self.police_type_com.currentTextChanged.connect(self.toggle_car_inp__)
+        self.police_car_inp.setVisible(False)
+
+    def toggle_car_inp__(self, text):
+        is_sagzao = text == "საგზაო"
+
+        self.police_car_inp.setVisible(is_sagzao)
+
     def submit__(self):
         try:
             headers = {
@@ -449,26 +496,14 @@ class Police(Police_page, Log_out):
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Error connecting to server:\n{str(e)}")
 
-class Ambassador(Ambassador_page, Log_out):
+class Ambassador(Ambassador_page, Universal_methods):
     def __init__(self, epass):
         super().__init__()
         self.amb_submit_btn.clicked.connect(self.submit__)
         self.amb_log_out_btn.clicked.connect(lambda: self.logout(epass))
-        self.police_search_bar_3.returnPressed.connect
-    
-    def update_display(self):
-        try:
-            response = requests.get("http://127.0.0.1:8000/data_fetch/search", params={"search": self.police_search_bar_3.text()})
+        self.search_bar.returnPressed.connect(self.search)
+        self.amb_search_btn.clicked.connect(self.search)
 
-            if response.status_code == 200:
-                return response.json()["result"]
-            elif response.status_code == 404:
-                return []
-            else:
-                QMessageBox.critical(self, "Failed", f"search failed:\n{response.json()["detail"]}")
-        except Exception as e:
-            QMessageBox.critical(self, "Error", f"Error connecting to server:\n{str(e)}")
-    
     def submit__(self):
         try:
             headers = {
@@ -492,8 +527,8 @@ class Ambassador(Ambassador_page, Log_out):
             QMessageBox.critical(self, "Error", f"Error connecting to server:\n{str(e)}")
 
 if __name__ == "__main__":
-    # api_thread = threading.Thread(target=start_api, daemon=True)
-    # api_thread.start()
+    api_thread = threading.Thread(target=start_api, daemon=True)
+    api_thread.start()
 
     application = QApplication(sys.argv)
     window = Epass()

@@ -47,25 +47,28 @@ If you don't have Git installed:
 
 ### 1️⃣ Run the setup once you download it
 
-run(double click) `setup.bat` file
+run(double click) `setup.bat` (for linux `setup.sh`) file
 
 ### 2️⃣ Use startup for starting program
 
-run(double click) `startup.bat` file
+run(double click) `startup.bat` (for linux `startup.sh`) file
 
 🧑‍💼 You can now:
 
 Create your account
  
- Open the database file (usually mydatabase.db) using SQLiteViewer
+ Open the database file (usually `mydatabase.db`) using SQLiteViewer
 
- View existing citizens and their credentials
+ View existing Citizens table and their credentials
  
  register using any of the citizen
+ 
+ OR
+
+ In order to try Special users you have to open Account table and log in as any of them
 
 📂 Login using username and password you enter when registered
 
-
 ---
 
-💡 **Note:** if you want to see how all the api works you need to use an api platform (e.g. postman) and test it. from[`postman_api_testing/`](https://github.com/lazarejan/project/tree/main/postman_api_testing) you can import those files in postman and you are good to go
+💡 **Note:** if you want to see how all the api works you need to use an api platform (e.g. postman) and test it. from[`postman_api_testing/`](https://github.com/lazarejan/project/tree/main/postman_api_testing) you can import those files in postman and you are good to go. (now you can try all the requests from application directly with regular user and "spacial"(police, border guard, ambassador) user interface)

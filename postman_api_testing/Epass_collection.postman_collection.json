@@ -119,6 +119,18 @@
 					"port": "8000",
 					"path": [
 						"login"
+					],
+					"query": [
+						{
+							"key": "username",
+							"value": "lazare",
+							"disabled": true
+						},
+						{
+							"key": "password",
+							"value": "Pass$1234",
+							"disabled": true
+						}
 					]
 				}
 			},
@@ -267,7 +279,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://127.0.0.1:8000/data_fetch/visa",
+					"raw": "http://127.0.0.1:8000/data_fetch/fine",
 					"protocol": "http",
 					"host": [
 						"127",
@@ -278,7 +290,7 @@
 					"port": "8000",
 					"path": [
 						"data_fetch",
-						"visa"
+						"fine"
 					]
 				}
 			},
@@ -368,7 +380,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"personal_id\": \"\",\r\n    \"type\": \"\",\r\n    \"message\": \"\", \r\n    \"amount\": 100,\r\n    \"duration_days\": 1\r\n}",
+					"raw": "{\r\n    \"personal_id\": \"\",\r\n    \"type\": \"\",\r\n    \"message\": \"\", \r\n    \"amount\": 0,\r\n    \"duration_days\": 1\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -449,50 +461,6 @@
 			"response": []
 		},
 		{
-			"name": "search",
-			"request": {
-				"auth": {
-					"type": "bearer",
-					"bearer": [
-						{
-							"key": "token",
-							"value": "{{JWT}}",
-							"type": "string"
-						}
-					]
-				},
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "http://127.0.0.1:8000/data_fetch/search/fine?search_type=status&search=გადასახდელი",
-					"protocol": "http",
-					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
-					],
-					"port": "8000",
-					"path": [
-						"data_fetch",
-						"search",
-						"fine"
-					],
-					"query": [
-						{
-							"key": "search_type",
-							"value": "status"
-						},
-						{
-							"key": "search",
-							"value": "გადასახდელი"
-						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
 			"name": "data for user",
 			"request": {
 				"auth": {
@@ -560,6 +528,36 @@
 					"port": "8000",
 					"path": [
 						"car"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "search",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:8000/data_fetch/search?search=",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"data_fetch",
+						"search"
+					],
+					"query": [
+						{
+							"key": "search",
+							"value": "",
+							"description": "personal_id, first_name or last_name"
+						}
 					]
 				}
 			},

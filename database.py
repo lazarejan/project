@@ -1,8 +1,7 @@
-from sqlalchemy import CheckConstraint, ForeignKey, create_engine
-from sqlalchemy.orm import sessionmaker, relationship
+from sqlalchemy import CheckConstraint, ForeignKey, create_engine, func, select
+from sqlalchemy.orm import sessionmaker, relationship, column_property
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, DATE, Integer, String, Boolean
-from sqlalchemy.sql import text
 
 URL = "sqlite:///mydatabase.db"
 
@@ -19,23 +18,24 @@ def get_session():
 
 base = declarative_base()
 
-class Citizens(base):
-    __tablename__ = "citizens"
+class Fine(base):
+    __tablename__ = "fine"
 
-    personal_id = Column(String(11), primary_key=True, nullable=False)
-    first_name = Column(String, nullable=False)
-    last_name = Column(String, nullable=False)
-    birth_date = Column(DATE, nullable=False)
-    sex = Column(String(2), nullable=False) 
-    address = Column(String, nullable=False)
-
-    id_card = relationship("ID_card", uselist=False)
-    passport = relationship("Passport", uselist=False)
-    car_license = relationship("Car_license", uselist=False)
+    fine_id = Column(Integer, primary_key=True, nullable=False)
+    personal_id = Column(String(11), ForeignKey("citizens.personal_id"), nullable=False)
+    type = Column(String, nullable=False)
+    message = Column(String, nullable=False)
+    car_id = Column(String, ForeignKey("car.car_id"), nullable=True)
+    issue_date = Column(DATE, nullable=False)
+    expiration_date = Column(DATE, nullable=False)
+    amount = Column(Integer, nullable=False)
+    status = Column(String, nullable=False, server_default="გადასახდელი")
 
     __table_args__ = (
-        CheckConstraint("sex in ('მმ', 'მდ', '-')", name="check_sex"),
+        CheckConstraint("type IN ('ადმინისტრაციული', 'საგზაო', 'სხვა')", name="check_type"),
+        CheckConstraint("status IN ('გადახდილი', 'გადასახდელი', 'ვადაგასული')", name="check_status")
     )
+
 
 class Account(base):
     __tablename__ = "account"
@@ -96,23 +96,6 @@ class Car(base):
     model = Column(String, nullable=False)
     owner = Column(String(11), ForeignKey("citizens.personal_id"), nullable=False)
 
-class Fine(base):
-    __tablename__ = "fine"
-
-    fine_id = Column(Integer, primary_key=True, nullable=False)
-    personal_id = Column(String(11), ForeignKey("citizens.personal_id"), nullable=False)
-    type = Column(String, nullable=False)
-    message = Column(String, nullable=False)
-    car_id = Column(String, ForeignKey("car.car_id"), nullable=True)
-    issue_date = Column(DATE, nullable=False)
-    expiration_date = Column(DATE, nullable=False)
-    amount = Column(Integer, nullable=False)
-    status = Column(String, nullable=False, server_default="გადასახდელი")
-
-    __table_args__ = (
-        CheckConstraint("type IN ('ადმინისტრაციული', 'საგზაო', 'სხვა')", name="check_type"),
-        CheckConstraint("status IN ('გადახდილი', 'გადასახდელი', 'ვადაგასული')", name="check_status")
-    )
 
 class Visa(base):
     __tablename__ = "visa"
@@ -143,6 +126,36 @@ class BorderStamp(base):
 
     __table_args__ = (
         CheckConstraint("direction IN ('შესვლა', 'გასვლა')", name="check_direction"),
+    )
+
+class Citizens(base):
+    __tablename__ = "citizens"
+
+    personal_id = Column(String(11), primary_key=True, nullable=False)
+    first_name = Column(String, nullable=False)
+    last_name = Column(String, nullable=False)
+    birth_date = Column(DATE, nullable=False)
+    sex = Column(String(2), nullable=False) 
+    address = Column(String, nullable=False)
+
+    id_card = relationship("ID_card", uselist=False)
+    passport = relationship("Passport", uselist=False)
+    car_license = relationship("Car_license", uselist=False)
+
+    fine_count = column_property(
+        select(func.count(Fine.fine_id))
+        .where(Fine.personal_id == personal_id)
+        .where(Fine.status != "გადახდილი")
+        .correlate_except(Fine)
+        .scalar_subquery() 
+    )
+    borderstamp = relationship("BorderStamp", uselist=True)
+    visa = relationship("Visa", uselist=True)
+    car = relationship("Car", uselist=True)
+
+
+    __table_args__ = (
+        CheckConstraint("sex in ('მმ', 'მდ', '-')", name="check_sex"),
     )
 
 base.metadata.create_all(bind=engine)

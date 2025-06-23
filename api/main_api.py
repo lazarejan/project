@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from . import regist, login, special_req, user_req
+from . import data_fetch, data_upd, regist, login
 from fastapi_utils.tasks import repeat_every
 from database import  Car_license, ID_card, Passport, SessionLocal, Fine, Visa
 from datetime import date
@@ -23,13 +23,13 @@ def check_fine_expire():
 
     for fine in exp_fines:
         fine.status = "ვადაგასული"
-        fine.amount += 50
-        fine.message += "!!! jarimas vada gauvida oqroo (+50 GEL) !!!"
+        fine.amount += 100
+        fine.message += "!!! ჯარიმას ვადა გაუვიდა ოქრო (+100 GEL) !!!"
 
     db.commit()
     db.close()
 
 app.include_router(login.router)
 app.include_router(regist.router)
-app.include_router(user_req.router)
-app.include_router(special_req.router)
+app.include_router(data_fetch.router)
+app.include_router(data_upd.router)

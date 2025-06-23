@@ -13,8 +13,8 @@ router = APIRouter(
 @router.post("/login", response_model=schemas.TokenBase)
 def login(user_info: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_session)):
     user = db.query(Account).filter(Account.username == user_info.username).first()
-    
-    if not user or hash.decrypt(user.password) != user_info.password:
+
+    if not user or not hash.decrypt(user_info.password, user.password):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail= "user not found")
     
     access_token = oauth_.create_access_token({"username": user_info.username})
