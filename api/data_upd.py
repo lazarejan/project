@@ -19,7 +19,10 @@ def post_fine(fine_info: schemas.FinePostBase, db: Session = Depends(get_session
     fine_info["expiration_date"] = date.today() + timedelta(days=fine_info["duration_days"])
     del fine_info["duration_days"]
     citizen = db.query(Citizens).filter(Citizens.personal_id == fine_info["personal_id"]).first()
-    
+
+    if curr_user.is_special != "police":
+        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail="Request from other than police is not acceptable" )
+
     if not citizen:
         raise HTTPException(status_code=404, detail="Personal ID does not exists")
     
@@ -47,7 +50,10 @@ def post_visa(visa_info: schemas.VisaPostBase, db: Session = Depends(get_session
     visa_info["expiration_date"] = date.today() + timedelta(days=365*visa_info["duration_years"])
     
     del visa_info["duration_years"]
-    
+
+    if curr_user.is_special != "ambassador":
+        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail="Request from other than ambassador is not acceptable" )
+
     add_visa = Visa(**visa_info)
     db.add(add_visa)
     db.commit()
@@ -60,6 +66,10 @@ def post_borderstamp(borderstamp_info: schemas.BorderStampPostBase, db: Session 
     borderstamp_info["timestamp"] = date.today()
     borderstamp_info["passport_id"] = db.query(Passport).join(Citizens, Citizens.personal_id == Passport.personal_id).group_by(Passport.personal_id).first().passport_id
     citizen = db.query(Citizens).filter(Citizens.personal_id == borderstamp_info["personal_id"])
+
+    if curr_user.is_special != "border_guard":
+        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail="Request from other than border guard is not acceptable" )
+
 
     if not citizen:
         raise HTTPException(status_code=404, detail="Personal ID does not exists")

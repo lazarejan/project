@@ -76,7 +76,6 @@ class Epass(QMainWindow):
             self.stack.addWidget(self.Ambassador)
         self.stack.setCurrentWidget(self.Ambassador)
 
-
     def log_out(self):
         self.Main = None
         self.Police = None
@@ -207,9 +206,7 @@ class Universal_methods():
                 
                 self.scroll_grid.addWidget(row)
 
-
     def search(self):
-        print(self)
         try:
             response = requests.get("http://127.0.0.1:8000/data_fetch/search", params={"search": self.search_bar.text()})
             if response.status_code == 200 or response.status_code == 404:
@@ -258,18 +255,22 @@ class Main(Main_page, Universal_methods):
             self.tab.removeTab(2)
 
         if self.data["fine_list"]:
-            self.update_fine(self.data["fine_list"])
+            self.update_fine__(self.data["fine_list"])
         
         if self.data["visa_list"]:
-            self.update_visa(self.data["visa_list"])
+            self.update_visa__(self.data["visa_list"])
         
         if self.data["borderstamp_list"]:
-            self.update_borderstamp(self.data["borderstamp_list"])
+            self.update_borderstamp__(self.data["borderstamp_list"])
 
         if self.data["car_list"]:
-            self.update_car(self.data["car_list"])
+            self.update_car__(self.data["car_list"])
+        
+    # def add_car__(self):
+    #     add_car_dialog = QtWidgets.QDialog()
+    #     add_car_dialog.setWindowTitle("add new car")
     
-    def update_car(self, data):
+    def update_car__(self, data):
         for i in reversed(range(self.car_content.count())):
             widget = self.car_content.itemAt(i).widget()
             if widget is not None:
@@ -291,7 +292,7 @@ class Main(Main_page, Universal_methods):
             container.setLayout(layout)
             self.car_content.addWidget(container)
 
-    def update_borderstamp(self, data):
+    def update_borderstamp__(self, data):
         for i in reversed(range(self.borderstamp_content.count())):
             widget = self.borderstamp_content.itemAt(i).widget()
             if widget is not None:
@@ -316,7 +317,7 @@ class Main(Main_page, Universal_methods):
             container.setLayout(layout)
             self.borderstamp_content.addWidget(container)
 
-    def update_visa(self, data):
+    def update_visa__(self, data):
         for i in reversed(range(self.visa_content.count())):
             widget = self.visa_content.itemAt(i).widget()
             if widget is not None:
@@ -341,7 +342,7 @@ class Main(Main_page, Universal_methods):
             container.setLayout(layout)
             self.visa_content.addWidget(container)
     
-    def update_fine(self, data):
+    def update_fine__(self, data):
         for content in [self.id_content, self.car_fine_content]:
             for i in reversed(range(content.count())):
                 widget = content.itemAt(i).widget()
@@ -412,13 +413,13 @@ class Main(Main_page, Universal_methods):
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Error connecting to server:\n{str(e)}")
 
-    def payment__(self, btn, btn_id):
+    def payment__(self, btn, fine_id):
         try:
             headers = {
                 "Authorization": f"Bearer {AppState.token}"
             }
 
-            response = requests.put(f"http://127.0.0.1:8000/data_fetch/update_fine_status/{btn_id}", headers=headers)
+            response = requests.put(f"http://127.0.0.1:8000/data_fetch/update_fine_status/{fine_id}", headers=headers)
             if response.status_code == 200:
                 btn.setText("გადახდილია")
                 btn.setEnabled(False)
@@ -469,7 +470,8 @@ class Police(Police_page, Universal_methods):
 
     def toggle_car_inp__(self, text):
         is_sagzao = text == "საგზაო"
-
+        
+        self.police_car_inp.clear()
         self.police_car_inp.setVisible(is_sagzao)
 
     def submit__(self):
@@ -486,7 +488,7 @@ class Police(Police_page, Universal_methods):
                 "amount": int(self.police_amount_inp.text()),
                 "duration_days": int(self.police_dur_inp.text())
             }
-
+            print(data)
             response = requests.post("http://127.0.0.1:8000/fine", headers=headers, json=data)
 
             if response.status_code == 201:

@@ -21,7 +21,6 @@ def login(user_info: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
     is_special = db.query(Account.is_special).filter(Account.username == user_info.username).first()
     return {"token": access_token, "is_special": is_special[0]}
 
-
 @router.post("/logout")
 def logout(token: str = Depends(oauth_.auth_schema)):
     if oauth_.logout_user(token):

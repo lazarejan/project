@@ -102,10 +102,6 @@ class FinePostBase(BaseModel):
     amount: int
     duration_days: int
 
-    @validator('car_id')
-    def blank_str_to_none(cls, v):
-        return None if v == '' else v
-
 class VisaGetBase(BaseModel):
     visa_id: int
     personal_id: str
