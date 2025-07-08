@@ -84,7 +84,7 @@ def post_borderstamp(borderstamp_info: schemas.BorderStampPostBase, db: Session 
 def post_car(car_info: schemas.CarBase, db: Session = Depends(get_session), curr_user: Session = Depends(oauth_.get_current_user)):
     car_info = car_info.dict()
     is_car_id = db.query(Car).filter(Car.car_id == car_info["car_id"]).first()
-    citizen = db.query(Citizens).filter(Citizens.personal_id == car_info["personal_id"])
+    citizen = db.query(Citizens).filter(Citizens.personal_id == car_info["owner"])
 
     if not citizen:
         raise HTTPException(status_code=404, detail="Personal ID does not exists")

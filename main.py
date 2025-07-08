@@ -194,17 +194,21 @@ class Universal_methods():
 
         else:
             for p in people:
-                row = QtWidgets.QWidget()
-                lay = QtWidgets.QHBoxLayout(row)
+                lay = QtWidgets.QHBoxLayout()
                 lay.setContentsMargins(11, 0, 11, 0)
-
+                lay.setSpacing(20)
                 # one label per column you want to show
                 lay.addWidget(QtWidgets.QLabel(f"პირადი ნომ:  {p["personal_id"]}\nსახელი/გვარი:  {p["first_name"]+" "+p["last_name"]}\nმისამართი:  {p['address']}{f"\nმანქანა(ები):  {"\n".join((f"{x["brand"]}[{x["car_id"]}]" for x in p["car"]))}" if p["car"] != [] else ""}"))
                 lay.addWidget(QtWidgets.QLabel(f"ჯარიმების რაოდენობა:  {p["fine_count"]}"))
                 lay.addWidget(QtWidgets.QLabel(f"ვიზები:  {"\n".join((f"ქვ:{x["country"]} ტპ:{x["type"]} სტს:{x["status"]}" for x in p["visa"]))}"))
                 lay.addWidget(QtWidgets.QLabel(f"სსზღ. ბეჭედი:  {"\n".join((f"ლოკ: {x["location"]} მიმ: {x["direction"]}  დრო: {x["timestamp"]}" for x in p["borderstamp"]))}"))
                 
-                self.scroll_grid.addWidget(row)
+                container = QtWidgets.QFrame()
+                container.setLayout(lay)
+
+                self.scroll_grid.addWidget(container)
+
+                
 
     def search(self):
         try:
@@ -265,10 +269,6 @@ class Main(Main_page, Universal_methods):
 
         if self.data["car_list"]:
             self.update_car__(self.data["car_list"])
-        
-    # def add_car__(self):
-    #     add_car_dialog = QtWidgets.QDialog()
-    #     add_car_dialog.setWindowTitle("add new car")
     
     def update_car__(self, data):
         for i in reversed(range(self.car_content.count())):
@@ -288,8 +288,16 @@ class Main(Main_page, Universal_methods):
             layout.addWidget(brand_label)
             layout.addWidget(model_lab)
 
-            container = QtWidgets.QWidget()
+            
+            container = QtWidgets.QFrame()
             container.setLayout(layout)
+
+            container.setStyleSheet("""
+                QFrame {
+                    background-color: rgba(240, 240, 240);
+                    border-radius: 5px;
+                }
+            """)
             self.car_content.addWidget(container)
 
     def update_borderstamp__(self, data):
@@ -312,9 +320,16 @@ class Main(Main_page, Universal_methods):
 
             layout.setStretch(0, 1)
             layout.setStretch(1, 1)
-
-            container = QtWidgets.QWidget()
+            
+            container = QtWidgets.QFrame()
             container.setLayout(layout)
+
+            container.setStyleSheet("""
+                QFrame {
+                    background-color: rgba(240, 240, 240);
+                    border-radius: 5px;
+                }
+            """)
             self.borderstamp_content.addWidget(container)
 
     def update_visa__(self, data):
@@ -337,9 +352,16 @@ class Main(Main_page, Universal_methods):
 
             layout.setStretch(0, 1)
             layout.setStretch(1, 1)
-
-            container = QtWidgets.QWidget()
+            
+            container = QtWidgets.QFrame()
             container.setLayout(layout)
+
+            container.setStyleSheet("""
+                QFrame {
+                    background-color: rgba(240, 240, 240);
+                    border-radius: 5px;
+                }
+            """)
             self.visa_content.addWidget(container)
     
     def update_fine__(self, data):
@@ -373,9 +395,16 @@ class Main(Main_page, Universal_methods):
 
             layout.setStretch(0, 1)
             layout.setStretch(1, 1)
-
-            container = QtWidgets.QWidget()
+            
+            container = QtWidgets.QFrame()
             container.setLayout(layout)
+
+            container.setStyleSheet("""
+                QFrame {
+                    background-color: rgba(240, 240, 240);
+                    border-radius: 5px;
+                }
+            """)
             if fine["type"] == "საგზაო":
                 self.car_fine_content.addWidget(container)
             else:
@@ -467,12 +496,35 @@ class Police(Police_page, Universal_methods):
         self.search_btn.clicked.connect(self.search)
         self.police_type_com.currentTextChanged.connect(self.toggle_car_inp__)
         self.police_car_inp.setVisible(False)
+        self.police_submit_btn_1.clicked.connect(self.car_submit__)
 
     def toggle_car_inp__(self, text):
         is_sagzao = text == "საგზაო"
         
         self.police_car_inp.clear()
         self.police_car_inp.setVisible(is_sagzao)
+    
+    def car_submit__(self):
+        try:
+            headers = {
+                    "Authorization": f"Bearer {AppState.token}"
+            }
+
+            data = {
+                "car_id": self.police_car_inp_1.text(),
+                "brand": self.police_brand_inp.text(),
+                "model": self.police_model_inp.text(),
+                "owner": self.police_id_inp_1.text()
+            }
+
+            response = requests.post("http://127.0.0.1:8000/car", headers=headers, json=data)
+
+            if response.status_code == 201:
+                print("car added successfully")
+            else:
+                QMessageBox.critical(self, "Failed", f"car update failed:\n{response.json()["detail"]}")
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Error connecting to server:\n{str(e)}")
 
     def submit__(self):
         try:
