@@ -48,12 +48,16 @@ def post_visa(visa_info: schemas.VisaPostBase, db: Session = Depends(get_session
     visa_info["passport_id"] = db.query(Passport).join(Citizens, Citizens.personal_id == Passport.personal_id).group_by(Passport.personal_id).first().passport_id
     visa_info["issue_date"] = date.today()
     visa_info["expiration_date"] = date.today() + timedelta(days=365*visa_info["duration_years"])
+    citizen = db.query(Citizens).filter(Citizens.personal_id == visa_info["personal_id"])
     
     del visa_info["duration_years"]
 
     if curr_user.is_special != "ambassador":
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail="Request from other than ambassador is not acceptable" )
-
+    
+    if not citizen:
+        raise HTTPException(status_code=404, detail="Personal ID does not exists")
+    
     add_visa = Visa(**visa_info)
     db.add(add_visa)
     db.commit()
@@ -69,7 +73,6 @@ def post_borderstamp(borderstamp_info: schemas.BorderStampPostBase, db: Session 
 
     if curr_user.is_special != "border_guard":
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail="Request from other than border guard is not acceptable" )
-
 
     if not citizen:
         raise HTTPException(status_code=404, detail="Personal ID does not exists")

@@ -151,11 +151,6 @@ class CarBase(BaseModel):
     model: str
     owner: str
 
-class PersonVisaBase(BaseModel):
-    country: str
-    type: str
-    status: str
-
 class PersonBase(BaseModel):
     first_name: str
     last_name: str

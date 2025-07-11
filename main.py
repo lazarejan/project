@@ -52,7 +52,7 @@ class Epass(QMainWindow):
             self.stack.addWidget(self.Register)
         self.stack.setCurrentWidget(self.Register)
         
-    def go_home(self):
+    def go_main(self):
         if not self.Main:
             self.Main = Main(self)
             self.stack.addWidget(self.Main)
@@ -125,7 +125,7 @@ class Login(Login_page):
                 elif is_special == "ambassador":
                     epass.go_ambassador()
                 else:
-                    epass.go_home()
+                    epass.go_main()
             else:
                 QMessageBox.warning(self, "Failed", f"Login failed:\nusername or password is incorrect")
         except Exception as e:
@@ -140,7 +140,6 @@ class Login(Login_page):
 class Register(Register_page):
     """
     Registration page for new users to create their account.
-    
     """
     def __init__(self, epass):
         super().__init__()
@@ -159,13 +158,16 @@ class Register(Register_page):
 
             if response.status_code == 201:
                 AppState.token = response.json()["token"]
-                epass.go_home()
+                epass.go_main()
             else:
                 QMessageBox.warning(self, "Failed", f"register failed:\n{response.json()["detail"]}")
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Error connecting to server:\n{str(e)}")
 
 class Universal_methods():
+    """
+    Universal methods which are user by various classes
+    """
     def logout(self, epass):
         try:
             headers = {
@@ -197,7 +199,7 @@ class Universal_methods():
                 lay = QtWidgets.QHBoxLayout()
                 lay.setContentsMargins(11, 0, 11, 0)
                 lay.setSpacing(20)
-                # one label per column you want to show
+                
                 lay.addWidget(QtWidgets.QLabel(f"პირადი ნომ:  {p["personal_id"]}\nსახელი/გვარი:  {p["first_name"]+" "+p["last_name"]}\nმისამართი:  {p['address']}{f"\nმანქანა(ები):  {"\n".join((f"{x["brand"]}[{x["car_id"]}]" for x in p["car"]))}" if p["car"] != [] else ""}"))
                 lay.addWidget(QtWidgets.QLabel(f"ჯარიმების რაოდენობა:  {p["fine_count"]}"))
                 lay.addWidget(QtWidgets.QLabel(f"ვიზები:  {"\n".join((f"ქვ:{x["country"]} ტპ:{x["type"]} სტს:{x["status"]}" for x in p["visa"]))}"))
@@ -206,9 +208,7 @@ class Universal_methods():
                 container = QtWidgets.QFrame()
                 container.setLayout(lay)
 
-                self.scroll_grid.addWidget(container)
-
-                
+                self.scroll_grid.addWidget(container)        
 
     def search(self):
         try:
@@ -221,6 +221,9 @@ class Universal_methods():
             QMessageBox.critical(self, "Error", f"Error connecting to server:\n{str(e)}")
 
 class Main(Main_page, Universal_methods):
+    """
+    
+    """
     def __init__(self, epass):
         super().__init__()
         self.logout_btn.clicked.connect(lambda: self.logout(epass))
