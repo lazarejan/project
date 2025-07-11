@@ -7,28 +7,11 @@ REM ----------------------------------------------------------
 REM Change to the directory where the batch file is located
 cd /d "%~dp0"
 
-echo ============================================
-echo 🔧 Checking if virtualenv is installed...
-echo ============================================
-pip show virtualenv >nul 2>&1
-IF %ERRORLEVEL% NEQ 0 (
-    echo ❗ virtualenv not found. Installing it now...
-    pip install virtualenv
-    IF %ERRORLEVEL% NEQ 0 (
-        echo ❌ Failed to install virtualenv.
-        echo Please ensure pip is available and try again.
-        pause
-        exit /b
-    )
-) ELSE (
-    echo ✅ virtualenv is already installed.
-)
-
 echo.
 echo ============================================
 echo 🏗️  Creating virtual environment in /venv...
 echo ============================================
-virtualenv venv
+python -m venv venv
 IF %ERRORLEVEL% NEQ 0 (
     echo ❌ Failed to create virtual environment.
     pause
