@@ -1,7 +1,7 @@
 from sqlalchemy import CheckConstraint, ForeignKey, create_engine, func, select
 from sqlalchemy.orm import sessionmaker, relationship, column_property
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, DATE, Integer, String, Boolean
+from sqlalchemy import Column, DATE, Integer, String
 
 URL = "sqlite:///mydatabase.db"
 
@@ -35,7 +35,6 @@ class Fine(base):
         CheckConstraint("type IN ('ადმინისტრაციული', 'საგზაო', 'სხვა')", name="check_type"),
         CheckConstraint("status IN ('გადახდილი', 'გადასახდელი', 'ვადაგასული')", name="check_status")
     )
-
 
 class Account(base):
     __tablename__ = "account"

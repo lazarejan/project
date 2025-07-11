@@ -1,6 +1,5 @@
 from PyQt5.QtWidgets import QWidget
 from PyQt5 import QtCore, QtWidgets, QtGui
-from PyQt5.QtCore import Qt
 
 class AppState:
     token = None
@@ -546,22 +545,6 @@ class Main_page(QWidget):
         self.car_license_nomeri = QtWidgets.QLabel(self.car_license_tab)
         self.car_license_nomeri.setObjectName("car_license_nomeri")
         self.tabLayout12.addWidget(self.car_license_nomeri)
-        # self.add_btn_horizontal = QtWidgets.QHBoxLayout()
-        # self.add_btn_horizontal.setSizeConstraint(QtWidgets.QLayout.SetFixedSize)
-        # self.add_btn_horizontal.setObjectName("add_btn_horizontal")
-        # spacerItem = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
-        # self.add_btn_horizontal.addItem(spacerItem)
-        # self.add_car_btn = QtWidgets.QPushButton(self.car_license_tab)
-        # sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
-        # sizePolicy.setHorizontalStretch(0)
-        # sizePolicy.setVerticalStretch(0)
-        # sizePolicy.setHeightForWidth(self.add_car_btn.sizePolicy().hasHeightForWidth())
-        # self.add_car_btn.setSizePolicy(sizePolicy)
-        # self.add_car_btn.setMaximumSize(QtCore.QSize(25, 16777215))
-        # self.add_car_btn.setLayoutDirection(QtCore.Qt.RightToLeft)
-        # self.add_car_btn.setObjectName("add_car_btn")
-        # self.add_btn_horizontal.addWidget(self.add_car_btn)
-        # self.tabLayout12.addLayout(self.add_btn_horizontal)
         self.car_license_scroll_2 = QtWidgets.QScrollArea(self.car_license_tab)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         sizePolicy.setHorizontalStretch(0)
@@ -1226,7 +1209,6 @@ class Police_page(QWidget):
     #     self.police_search_bar_title.setText(_translate("Police", "Search bar"))
     #     self.search_btn.setText(_translate("Police", "Search"))
     #     self.police_logout.setText(_translate("Police", "log out"))
-
 
 class Ambassador_page(QWidget):
     def __init__(self):
